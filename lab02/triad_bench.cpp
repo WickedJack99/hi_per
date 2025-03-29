@@ -43,22 +43,24 @@ static void workerThread(int start, int end) {
 int main() {
   int range_start = 100;
   int range_end = 1'000'000;
-  int num_threads = std::thread::hardware_concurrency(); // use system's core count
+  workerThread(range_start, range_end);
 
-  int total = range_end - range_start;
-  int chunk_size = total / num_threads;
+  // int num_threads = std::thread::hardware_concurrency(); // use system's core count
 
-  std::vector<std::thread> threads;
+  // int total = range_end - range_start;
+  // int chunk_size = total / num_threads;
 
-  for (int i = 0; i < num_threads; ++i) {
-      int start = range_start + i * chunk_size;
-      int end = (i == num_threads - 1) ? range_end : start + chunk_size;
+  // std::vector<std::thread> threads;
 
-      threads.emplace_back(workerThread, start, end);
-  }
+  // for (int i = 0; i < num_threads; ++i) {
+  //     int start = range_start + i * chunk_size;
+  //     int end = (i == num_threads - 1) ? range_end : start + chunk_size;
 
-  for (auto& t : threads) t.join();
+  //     threads.emplace_back(workerThread, start, end);
+  // }
 
-  std::cout << "All threads finished.\n";
+  // for (auto& t : threads) t.join();
+
+  // std::cout << "All threads finished.\n";
   return 0;
 }
