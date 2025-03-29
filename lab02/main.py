@@ -8,7 +8,7 @@ def read_csv_pandas(filename):
     return df.values.flatten().astype(float)  # Konvertiert in flaches NumPy-Array (float, um Fehler zu vermeiden)
 
 # Daten einlesen
-data = read_csv_pandas("output.csv")
+data = read_csv_pandas("outcomes-100-1000000.csv")
 
 # Plot erstellen
 plt.figure(figsize=(8, 5))
