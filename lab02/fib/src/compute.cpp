@@ -3,6 +3,7 @@
 #include <cmath>
 #include <iostream>
 #include <vector>
+#include <array>
 
 int fib(int n) {
   if (n < 2)
@@ -44,3 +45,4 @@ Matrix compute(const Matrix &s, const std::vector<int> &v) {
   }
   return m;
 }
+
