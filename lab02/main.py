@@ -12,12 +12,11 @@ data = read_csv_pandas("outcomes-100-1000000.csv")
 
 # Plot erstellen
 plt.figure(figsize=(8, 5))
-plt.plot(data, marker="o", linestyle="-", color="b", linewidth=2, markersize=8, label="Daten aus CSV")
+plt.plot(data, marker="o", linestyle="-", color="b", linewidth=1, markersize=1)
 
 # Styling für einen coolen Look
-plt.title("CSV-Daten Visualisierung", fontsize=14)
-plt.xlabel("Index", fontsize=12)
-plt.ylabel("Wert", fontsize=12)
+plt.xlabel("n", fontsize=12)
+plt.ylabel("ms", fontsize=12)
 plt.grid(True, linestyle="--", alpha=0.6)
 plt.legend()
 plt.show()
