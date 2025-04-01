@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.31)
 cmake_policy(SET CMP0135 NEW)
 
 # Projektname
@@ -7,6 +7,8 @@ project(fib)
 # C++-Standard setzen
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+
 include(FetchContent)
 FetchContent_Declare(
   googletest
@@ -33,5 +35,14 @@ target_link_libraries(
 )
 
 include(GoogleTest)
+
+set(CMAKE_CXX_COMPILER /usr/bin/gcc)
+set(CMAKE_CXX_FLAGS "-O3")
+set(CMAKE_EXE_LINKER_FLAGS "-lstdc++")
+
+target_link_libraries(MyProject m)
+target_link_libraries(test_stuff m)
+
+
 gtest_discover_tests(test_stuff)
 
