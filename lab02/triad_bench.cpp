@@ -26,13 +26,32 @@ static double ownMethod(int n) {
   return averageTime;
 }
 
+static double ownMethod2(int n) {
+  std::vector<double> A(n, 0);
+  std::chrono::duration<double, std::milli> sumTime;
+  for (int i = 0; i < 20; ++i) {
+    auto startTime = std::chrono::system_clock::now();
+    for (int j = 0; j < n; ++j) {
+      A[j] = B[j] + C[j] * D[j];
+    }
+    // prevent the compiler from optimizing everything away
+    volatile double dummy = A[0];
+    auto endTime = std::chrono::system_clock::now();
+    sumTime += endTime - startTime;
+  }
+  double averageTime = sumTime.count() / 20;
+  double flops = (2.0 * n) / (averageTime / 1000);
+
+  return flops;
+}
+
 static void workerThread(int start, int end) {
   std::vector<double> outcomes;
   for (int i = start; i < end; i+=10) {
-    outcomes.push_back(ownMethod(i));
+    outcomes.push_back(ownMethod2(i));
   }
   std::stringstream fileName;
-  fileName << "outcomes-" << start << "-" << end << ".csv";
+  fileName << "outcomes-" << start << "-" << end << "2.csv";
   std::ofstream MyFile(fileName.str());
   for (int j = 0; j < outcomes.size(); j++) {
     MyFile << outcomes[j] << ",";
