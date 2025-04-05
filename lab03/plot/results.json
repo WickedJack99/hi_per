@@ -1,0 +1,70 @@
+{
+    "context": {
+        "date": "2025-04-05T12:56:49+02:00",
+        "host_name": "hpcvl1",
+        "executable": "./changed",
+        "num_cpus": 12,
+        "mhz_per_cpu": 3100,
+        "cpu_scaling_enabled": true,
+        "caches": [
+            {
+                "type": "Data",
+                "level": 1,
+                "size": 32768,
+                "num_sharing": 1
+            },
+            {
+                "type": "Instruction",
+                "level": 1,
+                "size": 32768,
+                "num_sharing": 1
+            },
+            {
+                "type": "Unified",
+                "level": 2,
+                "size": 262144,
+                "num_sharing": 1
+            },
+            {
+                "type": "Unified",
+                "level": 3,
+                "size": 15728640,
+                "num_sharing": 6
+            }
+        ],
+        "load_avg": [
+            0.05,
+            0.24,
+            0.22
+        ],
+        "library_build_type": "release"
+    },
+    "benchmarks": [
+        {
+            "name": "benchmarkJacobi/100",
+            "run_name": "benchmarkJacobi/100",
+            "run_type": "iteration",
+            "repetitions": 0,
+            "repetition_index": 0,
+            "threads": 1,
+            "iterations": 9,
+            "real_time": 68.75601721953393,
+            "cpu_time": 68.75501033333335,
+            "time_unit": "ms",
+            "Size": 100
+        },
+        {
+            "name": "benchmarkJacobi/120",
+            "run_name": "benchmarkJacobi/120",
+            "run_type": "iteration",
+            "repetitions": 0,
+            "repetition_index": 0,
+            "threads": 1,
+            "iterations": 6,
+            "real_time": 118.00753599770057,
+            "cpu_time": 118.00501733333333,
+            "time_unit": "ms",
+            "Size": 120
+        }
+    ]
+}

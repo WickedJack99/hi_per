@@ -56,7 +56,7 @@ def create_plot(sizes, real_times):
     plt.show()
 
 if __name__ == "__main__":
-    json_file = 'result.json'
+    json_file = 'results.json'
     sizes, real_times = parse_benchmark_data(json_file)
 
     if sizes and real_times:
