@@ -51,7 +51,8 @@
             "real_time": 68.75601721953393,
             "cpu_time": 68.75501033333335,
             "time_unit": "ms",
-            "Size": 100
+            "Size": 100,
+            "Iterations": 1000
         },
         {
             "name": "benchmarkJacobi/120",
@@ -64,7 +65,8 @@
             "real_time": 118.00753599770057,
             "cpu_time": 118.00501733333333,
             "time_unit": "ms",
-            "Size": 120
+            "Size": 120,
+            "Iterations": 2000
         }
     ]
 }

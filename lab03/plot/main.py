@@ -18,13 +18,16 @@ def parse_benchmark_data(json_file):
             benchmarks = data.get('benchmarks', [])
             sizes = []
             real_times = []
+            flops = []
             for benchmark in benchmarks:
+                iterations = benchmark.get('Iterations')
                 size = benchmark.get('Size')
                 real_time = benchmark.get('real_time')
                 if size is not None and real_time is not None:
+                    flops.append(7 * iterations / real_time)
                     sizes.append(size)
                     real_times.append(real_time)
-            return sizes, real_times
+            return sizes, real_times, flops
     except FileNotFoundError:
         print(f"Error: File not found: {json_file}")
         return [], []
@@ -35,7 +38,7 @@ def parse_benchmark_data(json_file):
         print(f"An unexpected error occurred: {e}")
         return [], []
 
-def create_plot(sizes, real_times):
+def create_plot(sizes, real_times, flops):
     """
     Creates a scatter plot of Size vs. real_time.
 
@@ -48,16 +51,23 @@ def create_plot(sizes, real_times):
         return
 
     plt.figure(figsize=(10, 6))
-    plt.scatter(sizes, real_times, marker='o')
+    plt.scatter(sizes, real_times, marker='o', color='blue', label='Real Time (ms)')
+    plt.scatter(sizes, flops, marker='x', color='red', label='FLOPs')
     plt.xlabel("Size")
-    plt.ylabel("Real Time (ms)")
-    plt.title("Benchmark: Real Time vs. Size")
+    plt.ylabel("Values")
+    plt.title("Benchmark: Real Time and FLOPs vs. Size")
     plt.grid(True)
+    plt.legend()  # Show the legend to distinguish the plots
+    plt.twinx()  # Create a second y-axis to avoid overlapping labels if scales differ significantly
+    plt.ylabel("FLOPs", color='red')
+    plt.tick_params(axis='y', labelcolor='red')
+    plt.gca().yaxis.grid(False) # Turn off grid for the second y-axis
+
     plt.show()
 
 if __name__ == "__main__":
     json_file = 'results.json'
-    sizes, real_times = parse_benchmark_data(json_file)
+    sizes, real_times, flops = parse_benchmark_data(json_file)
 
     if sizes and real_times:
-        create_plot(sizes, real_times)
+        create_plot(sizes, real_times, flops)
