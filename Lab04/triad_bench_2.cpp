@@ -26,7 +26,7 @@ void ownMethod(std::vector<double>& A, int start, int end) {
 
 void workerThread(std::vector<double>& A, int start, int end, int threadCount, Statistics& stat) {
   
-  std::chrono::duration<double, std::milli> sumTime;
+  std::chrono::duration<double, std::nano> sumTime;
   for (int i = 0; i < 20; i++) {
     auto startTime = std::chrono::system_clock::now();
     ownMethod(A, start, end);
@@ -35,7 +35,7 @@ void workerThread(std::vector<double>& A, int start, int end, int threadCount, S
   }
   
   stat.avg_time = sumTime.count() / 20;
-  stat.flops = (2.0 * N) / (stat.avg_time  / 1000);
+  stat.flops = (2.0 * N) / (stat.avg_time  / 1000000);
 }
 
 int main() {
@@ -56,22 +56,23 @@ int main() {
       int start = N / countThreads[j] * i;
       int end = N / countThreads[j] * (i + 1);
 
-      threads.emplace_back(workerThread, std::ref(A), start, end, countThreads[j], std::ref(stats[j]));
+      threads.emplace_back(workerThread, std::ref(A), start, end, countThreads[j], std::ref(stats[i]));
     }
 
     for (auto& t : threads) {
       t.join();
     }
 
-    std::cout << A[1179647];
+    //std::cout << A[1179647];
     volatile std::vector<double> dummy(A);
 
-    // std::stringstream fileName;
-    // fileName << "outcomes-" << start << "-" << end << ".csv";
-    // std::ofstream MyFile(fileName.str());
-  
-    // MyFile << "(" << averageTime << "" << flops << ")";
-    // MyFile.close();
+    std::stringstream fileName;
+    fileName << "stats" << j << ".csv";
+    std::ofstream MyFile(fileName.str());
+    for (auto entry : stats) {
+      MyFile << entry.avg_time << "," << entry.flops << ";";
+    }
+    MyFile.close();
 
     std::cout << "All threads finished.\n";
   }
