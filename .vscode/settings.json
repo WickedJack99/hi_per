@@ -59,6 +59,7 @@
         "xutility": "cpp",
         "stop_token": "cpp",
         "thread": "cpp",
-        "array": "cpp"
+        "array": "cpp",
+        "mutex": "cpp"
     }
 }

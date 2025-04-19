@@ -1,0 +1,124 @@
+{
+  "context": {
+    "date": "2025-04-19T12:35:39+02:00",
+    "host_name": "hpcvl1",
+    "executable": "./mVPDI",
+    "num_cpus": 12,
+    "mhz_per_cpu": 3100,
+    "cpu_scaling_enabled": true,
+    "caches": [
+      {
+        "type": "Data",
+        "level": 1,
+        "size": 32768,
+        "num_sharing": 1
+      },
+      {
+        "type": "Instruction",
+        "level": 1,
+        "size": 32768,
+        "num_sharing": 1
+      },
+      {
+        "type": "Unified",
+        "level": 2,
+        "size": 262144,
+        "num_sharing": 1
+      },
+      {
+        "type": "Unified",
+        "level": 3,
+        "size": 15728640,
+        "num_sharing": 6
+      }
+    ],
+    "load_avg": [0,0,0],
+    "library_build_type": "release"
+  },
+  "benchmarks": [
+    {
+      "name": "idk/1",
+      "run_name": "idk/1",
+      "run_type": "iteration",
+      "repetitions": 0,
+      "repetition_index": 0,
+      "threads": 1,
+      "iterations": 100,
+      "real_time": 9.0830782328266650e+01,
+      "cpu_time": 1.2582504000000050e-01,
+      "time_unit": "ms"
+    },
+    {
+      "name": "idk/2",
+      "run_name": "idk/2",
+      "run_type": "iteration",
+      "repetitions": 0,
+      "repetition_index": 0,
+      "threads": 1,
+      "iterations": 100,
+      "real_time": 4.8641373829450458e+01,
+      "cpu_time": 1.4497118999999614e-01,
+      "time_unit": "ms"
+    },
+    {
+      "name": "idk/3",
+      "run_name": "idk/3",
+      "run_type": "iteration",
+      "repetitions": 0,
+      "repetition_index": 0,
+      "threads": 1,
+      "iterations": 100,
+      "real_time": 3.4412161840591580e+01,
+      "cpu_time": 2.0588515000000029e-01,
+      "time_unit": "ms"
+    },
+    {
+      "name": "idk/4",
+      "run_name": "idk/4",
+      "run_type": "iteration",
+      "repetitions": 0,
+      "repetition_index": 0,
+      "threads": 1,
+      "iterations": 100,
+      "real_time": 2.7137287650257349e+01,
+      "cpu_time": 2.4066663999999349e-01,
+      "time_unit": "ms"
+    },
+    {
+      "name": "idk/6",
+      "run_name": "idk/6",
+      "run_type": "iteration",
+      "repetitions": 0,
+      "repetition_index": 0,
+      "threads": 1,
+      "iterations": 1000,
+      "real_time": 2.0151479526888579e+01,
+      "cpu_time": 3.9556471800000281e-01,
+      "time_unit": "ms"
+    },
+    {
+      "name": "idk/9",
+      "run_name": "idk/9",
+      "run_type": "iteration",
+      "repetitions": 0,
+      "repetition_index": 0,
+      "threads": 1,
+      "iterations": 860,
+      "real_time": 2.2973610189483438e+01,
+      "cpu_time": 7.7354559418604130e-01,
+      "time_unit": "ms"
+    },
+    {
+      "name": "idk/12",
+      "run_name": "idk/12",
+      "run_type": "iteration",
+      "repetitions": 0,
+      "repetition_index": 0,
+      "threads": 1,
+      "iterations": 407,
+      "real_time": 2.0264966373334133e+01,
+      "cpu_time": 1.6165737911547986e+00,
+      "time_unit": "ms"
+    }
+  ]
+}
