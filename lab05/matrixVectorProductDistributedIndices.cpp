@@ -1,3 +1,4 @@
+#include <benchmark/benchmark.h>
 #include <cmath>
 #include <iostream>
 #include <thread>
@@ -7,7 +8,7 @@
 // Create the matrix and vector to be multiplied and fill them
 // with some sensible initial values.
 std::pair<Matrix, std::vector<double>> createMatrixAndVector() {
-  const int n = 1e3*9;
+  const int n = 1e3 * 9;
   Matrix mat(n, n);
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < n; ++j) {
@@ -38,20 +39,51 @@ void verifyResult(const std::vector<double> result) {
   }
 }
 
-void computeResult(const Matrix& mat, const std::vector<double>& vec, int start, int end, std::vector<double>& result) {
+void computeResult(const Matrix& mat,
+                   const std::vector<double>& vec,
+                   int start,
+                   int end,
+                   std::vector<double>& result) {
   int n = vec.size();
   for (int x = start; x < end; x++) {
     for (int y = 0; y < n; y++) {
-      result[y] = mat(x,y) * vec[x];
+      result[x] += mat(x, y) * vec[y];
     }
   }
 }
 
-int main() {
+void benchmarkComputeResult(benchmark::State& state) {
+  int threads = state.range(0);
   auto [mat, vec] = createMatrixAndVector();
-  std::vector<double> result(vec.size(), 0);
-  result = mat * vec;
-  // TODO: compute result = mat * vec with multiple threads
 
-  verifyResult(result);
+  for (auto _ : state) {
+    std::vector<std::thread> threadPool;
+    std::vector<double> result(vec.size(), 0);
+    for (int j = 0; j < threads; j++) {
+      int start = vec.size() / threads * j;
+      int end = vec.size() / threads * (j + 1);
+      threadPool.emplace_back(computeResult, std::ref(mat), std::ref(vec),
+                              start, end, std::ref(result));
+    }
+    for (int j = 0; j < threads; j++) {
+      threadPool[j].join();
+    }
+    benchmark::DoNotOptimize(result);
+  }
+}
+
+int main(int argc, char** argv) {
+  ::benchmark::Initialize(&argc, argv);
+
+  std::vector<int> threads = {1, 2, 3, 4, 6, 9, 12};
+
+  for (int i = 0; i < threads.size(); i++) {
+    benchmark::RegisterBenchmark("idk", benchmarkComputeResult)
+        ->Arg(threads[i])
+        ->Unit(benchmark::kMillisecond);
+  }
+
+  ::benchmark::RunSpecifiedBenchmarks();
+
+  return 0;
 }
