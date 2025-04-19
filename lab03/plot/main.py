@@ -24,7 +24,7 @@ def parse_benchmark_data(json_file):
                 size = benchmark.get('Size')
                 real_time = benchmark.get('real_time')
                 if size is not None and real_time is not None:
-                    flops.append(7 * iterations / real_time)
+                    flops.append((7 * iterations * (size-2)**2) / (real_time / 1000)) #
                     sizes.append(size)
                     real_times.append(real_time)
             return sizes, real_times, flops
@@ -52,21 +52,27 @@ def create_plot(sizes, real_times, flops):
 
     plt.figure(figsize=(10, 6))
     plt.scatter(sizes, real_times, marker='o', color='blue', label='Real Time (ms)')
-    plt.scatter(sizes, flops, marker='x', color='red', label='FLOPs')
+    
     plt.xlabel("Size")
-    plt.ylabel("Values")
+    plt.ylim(0, 50000)
+    plt.ylabel("Real Time (ms)", color='blue')
     plt.title("Benchmark: Real Time and FLOPs vs. Size")
     plt.grid(True)
-    plt.legend()  # Show the legend to distinguish the plots
-    plt.twinx()  # Create a second y-axis to avoid overlapping labels if scales differ significantly
-    plt.ylabel("FLOPs", color='red')
-    plt.tick_params(axis='y', labelcolor='red')
-    plt.gca().yaxis.grid(False) # Turn off grid for the second y-axis
+    plt.legend(loc='upper left')
+
+    ax2 = plt.twinx()
+    ax2.scatter(sizes, flops, marker='x', color='red', label='FLOPs')
+    ax2.set_ylabel("FLOPs", color='red')
+    
+    ax2.set_yscale("log")
+    ax2.tick_params(axis='y', labelcolor='red')
+    ax2.yaxis.grid(False)
+    ax2.legend(loc='upper right') # Separate legend for the second y-axis
 
     plt.show()
 
 if __name__ == "__main__":
-    json_file = 'results.json'
+    json_file = 'E:\\Repositories\\hi_per\\lab03\\plot\\results_flops.json'
     sizes, real_times, flops = parse_benchmark_data(json_file)
 
     if sizes and real_times:

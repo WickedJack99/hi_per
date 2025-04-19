@@ -33,9 +33,6 @@ Matrix jacobi(const Matrix& init, double eps, int maxNumIter) {
 
     std::swap(tmp, phi);
 
-
-    // std::cout << l2phi << ", " << l2tmp << ", " << dist << std::endl;
-
     nIter++;
   }
 
