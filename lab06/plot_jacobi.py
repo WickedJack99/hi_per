@@ -1,43 +1,24 @@
 import json
 import matplotlib.pyplot as plt
+import pandas
 
 # Path to the benchmark results JSON
-results = ""
+file_static = "benchmark.csv"
+file_dyn = "benchmark_dyn.csv"
+file_gui = "benchmark_gui.csv"
 
-# Load the data
-def load_data(filename):
-    with open(filename, "r") as f:
-        data = json.load(f)
+data_static = pandas.read_csv(file_static)
+data_dyn = pandas.read_csv(file_dyn)
+data_gui = pandas.read_csv(file_gui)
 
-    # Constants
-    total_flops = 18000
-
-    # Data storage
-    thread_counts = []
-    flops = []
-
-    # Extract relevant data
-    for entry in data["benchmarks"]:
-        thread_count = int(entry["name"].split("/")[-1])
-        time_per_iter_ms = entry["real_time"]
-        time_total_s = (time_per_iter_ms) / 1000  # convert ms to s
-
-        flops_per_second = total_flops / time_total_s
-
-        thread_counts.append(thread_count)
-        flops.append(flops_per_second)
-
-    return thread_counts, flops
-
-
-threads_VPRC, flops_VPRC = load_data(results)
-
-# Plotting
+#Plotting
 plt.figure(figsize=(8, 5))
-plt.plot(threads_VPRC, flops_VPRC, marker="o", color="blue", label="VPRC")
+plt.plot(data_static["threads"], data_static["time"], marker="o", color="blue", label="static")
+plt.plot(data_dyn["threads"], data_dyn["time"], marker="o", color="red", label="dynamic")
+plt.plot(data_gui["threads"], data_gui["time"], marker="o", color="green", label="guided")
 plt.xlabel("Thread Count")
-plt.ylabel("Performance (FLOPS)")
-plt.title("Performance (FLOPS) vs Thread Count")
+plt.ylabel("Execution Time (ms)")
+plt.title("Performance of Jacobi Benchmark")
 plt.grid(True)
 plt.tight_layout()
 plt.show()

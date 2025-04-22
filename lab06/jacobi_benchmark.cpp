@@ -15,19 +15,31 @@ Matrix jacobi(const Matrix &init, double eps, int maxNumIter) {
 
   int t0 = 0;
   int t1 = 1;
-  while (dist > eps && nIter < maxNumIter) {
-    dist = 0;
-    for (int i = 1; i < n - 1; ++i) {
-      for (int j = 1; j < m - 1; ++j) {
-        phi[t1](i, j) = .25 * (phi[t0](i + 1, j) + phi[t0](i - 1, j) +
-                               phi[t0](i, j + 1) + phi[t0](i, j - 1));
-        const double diff = phi[t1](i, j) - phi[t0](i, j);
-        dist = std::max(dist, std::abs(diff));
-      }
-    }
 
-    nIter++;
-    std::swap(t0, t1);
+#pragma omp parallel shared(dist, nIter, phi, t0, t1)
+  {
+    while (true) {
+#pragma omp for reduction(max : dist) schedule(dynamic, 32)
+      for (int i = 1; i < n - 1; ++i) {
+        for (int j = 1; j < m - 1; ++j) {
+          phi[t1](i, j) = 0.25 * (phi[t0](i + 1, j) + phi[t0](i - 1, j) +
+                                  phi[t0](i, j + 1) + phi[t0](i, j - 1));
+          const double diff = phi[t1](i, j) - phi[t0](i, j);
+          dist = std::max(dist, std::abs(diff));
+        }
+      }
+
+#pragma omp single
+      {
+        nIter++;
+        std::swap(t0, t1);
+      }
+
+#pragma omp barrier
+      if (dist <= eps || nIter >= maxNumIter)
+        break;
+#pragma omp barrier
+    }
   }
 
   std::cout << "Finished Jacobi after " << nIter
@@ -176,15 +188,15 @@ double benchmark(int numThreads, JacobiParameters paramters) {
 }
 
 int main() {
-  const int numThreads = 8;
+  const int numThreads = 12;
   JacobiParameters parameters{.n = 1024, .maxNumIter = 1000, .eps = 1e-5};
 
   // Uncomment the following lines to store a matrix on the harddisk as
   // reference.
-  const Matrix init = initialCondition(parameters.n);
-  Matrix phi = jacobi(init, parameters.eps, parameters.maxNumIter);
-  storeMatrix(phi, "ref.asc");
-  std::cout << "Stored reference matrix to 'ref.asc'\n";
+  // const Matrix init = initialCondition(parameters.n);
+  // Matrix phi = jacobi(init, parameters.eps, parameters.maxNumIter);
+  // storeMatrix(phi, "ref.asc");
+  // std::cout << "Stored reference matrix to 'ref.asc'\n";
 
   // Uncomment the following lines to verify the correctness of the
   // paralleliztion
@@ -198,8 +210,15 @@ int main() {
   // }
 
   // // Perform the benchmark
-  // std::cout << "Starting benchmark\n";
-  // const double time = benchmark(numThreads, n, numIter);
-  // std::cout << "Benchmark results (" << numThreads << "): " << time <<
-  // "ms\n";
+  std::cout << "Starting benchmark\n";
+  for (int i = 1; i <= numThreads; ++i) {
+    std::cout << "Running benchmark with " << i << " threads\n";
+    // write time in csv
+    std::ofstream fout("benchmark_dyn.csv", std::ios::app);
+    const double time = benchmark(i, parameters);
+
+    fout << i << ", ";
+    fout << time << "\n";
+    std::cout << "Benchmark results (" << i << "): " << time << "ms\n";
+  }
 }
