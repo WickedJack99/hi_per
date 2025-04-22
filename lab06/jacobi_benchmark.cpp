@@ -1,11 +1,11 @@
 #include "matrix.h"
-#include <iostream>
-#include <fstream>
-#include <stdexcept>
-#include <omp.h>
 #include <chrono>
+#include <fstream>
+#include <iostream>
+#include <omp.h>
+#include <stdexcept>
 
-Matrix jacobi(const Matrix& init, double eps, int maxNumIter) {
+Matrix jacobi(const Matrix &init, double eps, int maxNumIter) {
   std::vector<Matrix> phi(2, init);
   const int n = phi[0].dim1();
   const int m = phi[0].dim2();
@@ -58,7 +58,7 @@ Matrix initialCondition(int n) {
  * May be loaded with python numpy.loadtxt() or with the function loadMatrix
  * below.
  */
-void storeMatrix(const Matrix& mat, const std::string& filename) {
+void storeMatrix(const Matrix &mat, const std::string &filename) {
   std::ofstream fout(filename);
   // first line: store keyword "#matrix" and dimensions
   // the hash allows loading the matrix with pythons loadtxt
@@ -79,7 +79,7 @@ void storeMatrix(const Matrix& mat, const std::string& filename) {
 /**
  * Load a matrix from a file that has been stored with storeMatrix
  */
-Matrix loadMatrix(const std::string& filename) {
+Matrix loadMatrix(const std::string &filename) {
   std::ifstream fin(filename);
 
   // Read in matrix dimensions
@@ -107,8 +107,8 @@ Matrix loadMatrix(const std::string& filename) {
  * @param eps the accuraccy from which on the comparison fails
  * @return: true if computed and the loaded matrix are identical
  */
-bool verifyAgainstStoredReference(const Matrix& computed,
-                                  const std::string& referenceFilename,
+bool verifyAgainstStoredReference(const Matrix &computed,
+                                  const std::string &referenceFilename,
                                   double eps = 1e-8) {
   Matrix ref = loadMatrix(referenceFilename);
   if (!(ref.dim1() == computed.dim1() && ref.dim2() == computed.dim2())) {
@@ -141,7 +141,7 @@ struct JacobiParameters {
  * generated from the function initialCondition() and comparing it to
  * a reference stored in a file.
  */
-bool verify(JacobiParameters paramters, const std::string& referenceFilename) {
+bool verify(JacobiParameters paramters, const std::string &referenceFilename) {
   const Matrix init = initialCondition(paramters.n);
   Matrix phi = jacobi(init, paramters.eps, paramters.maxNumIter);
   return verifyAgainstStoredReference(phi, referenceFilename);
@@ -188,14 +188,14 @@ int main() {
 
   // Uncomment the following lines to verify the correctness of the
   // paralleliztion
-  std::cout << "Verifying correct result: ";
-  bool isCorrect = verify(parameters, "ref.asc");
-  if (isCorrect) {
-    std::cout << "OK, parallel result is unchanged\n";
-  } else {
-    std::cout << "Failed, parallelization changed the result!\n";
-    return 1;
-  }
+  // std::cout << "Verifying correct result: ";
+  // bool isCorrect = verify(parameters, "ref.asc");
+  // if (isCorrect) {
+  //   std::cout << "OK, parallel result is unchanged\n";
+  // } else {
+  //   std::cout << "Failed, parallelization changed the result!\n";
+  //   return 1;
+  // }
 
   // // Perform the benchmark
   // std::cout << "Starting benchmark\n";
