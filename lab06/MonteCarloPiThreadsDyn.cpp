@@ -1,3 +1,4 @@
+#include "matrix.h"
 #include <chrono>
 #include <cstdint>
 #include <fstream>
@@ -51,18 +52,18 @@ bench_result benchmark(int numThreads, int64_t N, double function(int64_t)) {
 }
 
 int main() {
-  const int64_t max_n = 10000000;
+  const int64_t max_n = 1000000;
   const int max_threads = 12;
-  std::ofstream fout("diff_theads.csv", std::ios::app);
+  std::ofstream fout("dyn_n.csv", std::ios::app);
   fout << "threads" << ",";
   fout << "max_n" << ",";
   fout << "time" << "\n";
 
   for (int i = 1; i <= max_threads; i++) {
-    const bench_result res = benchmark(i, max_n, monteCarloPi);
+    const bench_result res = benchmark(i, max_n * i, monteCarloPi);
 
     fout << res.threads << ",";
-    fout << max_n << ",";
+    fout << (max_n * i) << ",";
     fout << res.time << "\n";
   }
 }
