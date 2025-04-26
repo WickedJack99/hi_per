@@ -20,8 +20,20 @@ data_single["error"] = data_single.apply(lambda x: calculate_error(x["pi"]), axi
 data_multi["error"] = data_multi.apply(lambda x: calculate_error(x["pi"]), axis=1)
 
 plt.figure(figsize=(8, 5))
-plt.plot(data_multi["error"], color="red", label="multi", linewidth=0.1)
-plt.plot(data_single["error"], color="blue", label="single", linewidth=0.1)
+plt.plot(
+    data_single["error"].index * 1000,
+    data_single["error"],
+    color="blue",
+    label="single",
+    linewidth=0.1,
+)
+plt.plot(
+    data_multi["error"].index * 5000,
+    data_multi["error"],
+    color="red",
+    label="multi",
+    linewidth=0.1,
+)
 plt.xlabel("time")
 plt.ylabel("error")
 plt.title("pin Monte Carlo Benchmark")

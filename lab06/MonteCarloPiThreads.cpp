@@ -45,7 +45,7 @@ bench_result benchmark(int numThreads, int64_t N, double function(int64_t)) {
   auto end = std::chrono::system_clock::now();
   std::chrono::duration<double, std::milli> diff = end - start;
   result.time = diff.count() / maxNumExec;
-  result.threads = numThreads;
+  result.threads = omp_get_thread_num();
 
   return result;
 }
