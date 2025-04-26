@@ -13,14 +13,17 @@ struct bench_result {
 
 double monteCarloPi(int64_t N) {
   int localCount = 0;
-  std::mt19937 generator(std::random_device{}());
-  std::uniform_real_distribution<double> dist(0.0, 1.0);
-#pragma omp parallel for reduction(+ : localCount)
-  for (int i = 0; i < N; ++i) {
-    double x = dist(generator);
-    double y = dist(generator);
-    if (x * x + y * y <= 1.0) {
-      localCount++;
+#pragma omp parallel
+  {
+    std::mt19937 generator(std::random_device{}() + omp_get_thread_num());
+    std::uniform_real_distribution<double> dist(0.0, 1.0);
+#pragma omp for reduction(+ : localCount)
+    for (int i = 0; i < N; ++i) {
+      double x = dist(generator);
+      double y = dist(generator);
+      if (x * x + y * y <= 1.0) {
+        localCount++;
+      }
     }
   }
 
@@ -35,7 +38,7 @@ bench_result benchmark(int numThreads, int64_t N, double function(int64_t)) {
   auto result = bench_result{0.0, 0.0};
 
   // perform benchmark
-  const int maxNumExec = 10;
+  const int maxNumExec = 4;
   for (int nExec = 0; nExec < maxNumExec; ++nExec) {
     result.pi = function(N);
   }
@@ -54,7 +57,7 @@ int main() {
   fout << "pi" << ",";
   fout << "time" << "\n";
 
-  for (int64_t i = 1000; i <= max_n; i += 1000) {
+  for (int64_t i = 1000; i <= max_n; i += 5000) {
     const bench_result res = benchmark(numThreads, i, monteCarloPi);
 
     fout << res.pi << ",";
