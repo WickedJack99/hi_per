@@ -25,18 +25,19 @@ plt.plot(
     data_single["error"],
     color="blue",
     label="single",
-    linewidth=0.1,
+    linewidth=0.2,
 )
 plt.plot(
     data_multi["error"].index * 5000,
     data_multi["error"],
     color="red",
     label="multi",
-    linewidth=0.1,
+    linewidth=0.2,
 )
-plt.xlabel("time")
+plt.legend()
+plt.xlabel("n")
 plt.ylabel("error")
-plt.title("pin Monte Carlo Benchmark")
+plt.title("pi Monte Carlo Benchmark")
 plt.grid(True)
 plt.tight_layout()
 plt.savefig("mein_plot.png")
