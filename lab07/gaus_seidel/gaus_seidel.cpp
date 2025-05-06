@@ -103,12 +103,12 @@ void benchmarkComputeResult(benchmark::State &state) {
   fill_matrix(matrix, 10);
 
   for (auto _ : state) {
-    gauss_seidel(sec, iterations);
+    gauss_seidel(matrix, iterations);
     benchmark::DoNotOptimize(matrix);
   }
 }
 
-int main(int argc, char** argv)) {
+int main(int argc, char **argv) {
   ::benchmark::Initialize(&argc, argv);
 
   for (int iterations = 0; iterations < 10000; iterations++) {
