@@ -6,11 +6,11 @@
 
 # SOURCE_FILES: The source files of the algorithm, used for each build.
 # You can add more source files here if needed.
-SOURCE_FILES = dbscan_serial.cpp point.cpp
+SOURCE_FILES = dbscan_parallel.cpp point.cpp
 
 # Main rogram, used to cluster the data and save the result.
 # PROGRAM_NAME: The name of the program that will be generated after compilation.
-PROGRAM_NAME = dbscan_serial
+PROGRAM_NAME = dbscan_parallel
 RUN_MAIN = run.cpp
 
 # Benchmark program: This program is used to benchmark the performance of the algorithm.

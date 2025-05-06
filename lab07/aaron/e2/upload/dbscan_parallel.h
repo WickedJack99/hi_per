@@ -18,7 +18,7 @@ public:
 
 private:
   std::set<int> regionQuery(const Point &point) const;
-  std::set<int> initializeNeighbors();
+  void initializeNeighbors();
   bool expandCluster(Point &point, std::set<int> &neighbours, int clusterID);
 
   // void merge(std::vector<int>& n, const std::vector<int>& nPrime) const;
