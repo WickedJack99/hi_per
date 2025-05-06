@@ -1,4 +1,5 @@
 #include "matrix.h"
+#include <benchmark/benchmark.h>
 #include <iostream>
 #include <omp.h>
 
@@ -25,7 +26,7 @@ void gauss_seidel_par(Matrix &phi, int maxNumIter) {
   const double osth = 1. / 4;
 
   for (int iter = 0; iter < maxNumIter; ++iter) {
-#pragma omp parallel num_threads(3)
+#pragma omp parallel num_threads(10)
     {
       int num_theads = omp_get_num_threads();
       int chunk = (m - 2) / num_theads;
@@ -95,23 +96,28 @@ void print_matrix(const Matrix &matrix) {
   }
 }
 
-int main() {
-  Matrix first = Matrix(8, 8);
-  Matrix sec = Matrix(8, 8);
+void benchmarkComputeResult(benchmark::State &state) {
+  int iterations = state.range(0);
+  Matrix matrix = Matrix(1000, 1000);
 
-  fill_matrix(first, 10);
-  fill_matrix(sec, 10);
+  fill_matrix(matrix, 10);
 
-  print_matrix(first);
-  print_matrix(sec);
+  for (auto _ : state) {
+    gauss_seidel(matrix, iterations);
+    benchmark::DoNotOptimize(matrix);
+  }
+}
 
-  gauss_seidel(first, 12);
-  gauss_seidel_par(sec, 12);
+int main(int argc, char **argv) {
+  ::benchmark::Initialize(&argc, argv);
 
-  check(first, sec);
+  for (int iterations = 0; iterations < 10000; iterations++) {
+    benchmark::RegisterBenchmark("bench_gaus_seidel", benchmarkComputeResult)
+        ->Arg(iterations)
+        ->Unit(benchmark::kMillisecond);
+  }
 
-  print_matrix(first);
-  print_matrix(sec);
+  ::benchmark::RunSpecifiedBenchmarks();
 
   return 0;
 }
