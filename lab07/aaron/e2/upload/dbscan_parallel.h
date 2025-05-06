@@ -1,25 +1,25 @@
 #ifndef DBSCAN_H
 #define DBSCAN_H
 
-#include <vector>
 #include <set>
+#include <vector>
 
 #include "point.h"
 
 namespace HPC {
 
 class DBSCAN {
- public:
+public:
   DBSCAN(int minPts, double eps);
 
-  void run(const std::vector<Point>& points);
+  void run(const std::vector<Point> &points);
 
-  const std::vector<Point>& getPoints() const { return dataset_; }
+  const std::vector<Point> &getPoints() const { return dataset_; }
 
- private:
-  std::set<int> regionQuery(const Point& point) const;
-  std::set<int> DBSCAN::initializeNeighbors();
-  bool expandCluster(Point& point, std::set<int>& neighbours, int clusterID);
+private:
+  std::set<int> regionQuery(const Point &point) const;
+  std::set<int> initializeNeighbors();
+  bool expandCluster(Point &point, std::set<int> &neighbours, int clusterID);
 
   // void merge(std::vector<int>& n, const std::vector<int>& nPrime) const;
 
@@ -32,6 +32,6 @@ class DBSCAN {
   std::vector<Point> dataset_;
 };
 
-}  // namespace HPC
+} // namespace HPC
 
-#endif  // DBSCAN_H
+#endif // DBSCAN_H

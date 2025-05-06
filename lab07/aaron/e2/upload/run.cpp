@@ -1,10 +1,9 @@
-#include <iostream>
-#include <fstream>
+#include "dbscan_parallel.h"
 #include <chrono>
-#include "dbscan.h"
+#include <fstream>
+#include <iostream>
 
 using namespace HPC;
-
 
 int main() {
 
