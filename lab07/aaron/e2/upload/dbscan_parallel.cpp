@@ -15,7 +15,6 @@ void DBSCAN::run(const std::vector<Point> &points) {
   initializeNeighbors();
 
   int clusterIndex = 0;
-  // #pragma omp parallel for
   for (int i = 0; i < n; ++i) {
     Point &point = dataset_[i];
     if (point.clusterID < 0) {
