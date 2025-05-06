@@ -96,15 +96,28 @@ void print_matrix(const Matrix &matrix) {
   }
 }
 
-void benchmarkgaus_seidel(benchmark::State &state) {
+void benchmarkComputeResult(benchmark::State &state) {
+  int iterations = state.range(0);
   Matrix matrix = Matrix(1000, 1000);
+
   fill_matrix(matrix, 10);
 
   for (auto _ : state) {
-    gauss_seidel(matrix, 10000);
+    gauss_seidel(sec, iterations);
     benchmark::DoNotOptimize(matrix);
   }
 }
 
-BENCHMARK(benchmarkgaus_seidel)->Unit(benchmark::kMillisecond);
-BENCHMARK_MAIN();
+int main(int argc, char** argv)) {
+  ::benchmark::Initialize(&argc, argv);
+
+  for (int iterations = 0; iterations < 10000; iterations++) {
+    benchmark::RegisterBenchmark("bench_gaus_seidel", benchmarkComputeResult)
+        ->Arg(iterations)
+        ->Unit(benchmark::kMillisecond);
+  }
+
+  ::benchmark::RunSpecifiedBenchmarks();
+
+  return 0;
+}
