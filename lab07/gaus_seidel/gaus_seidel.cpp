@@ -32,10 +32,22 @@ void gauss_seidel_par(Matrix &phi, int maxNumIter) {
       int start = 1 + chunk * omp_get_thread_num();
       int end = chunk * (omp_get_thread_num() + 1);
 
-      for (int i = start; i <= end; ++i) {
-        for (int j = 1; j < n - 1; ++j) {
-          phi(i, j) = osth * (phi(i + 1, j) + phi(i - 1, j) + phi(i, j + 1) +
-                              phi(i, j - 1));
+      // printf("thread %d, start: %d, end: %d\n", omp_get_thread_num(), start,
+      //        end);
+
+      for (int j = 1; j < n + omp_get_num_threads() - 1; ++j) {
+        for (int i = start; i <= end; ++i) {
+
+          int k = j - omp_get_thread_num();
+
+          // printf("thread %d, i: %d, j: %d, k: %d\n", omp_get_thread_num(), i,
+          // j,
+          //        k);
+
+          if (k > 0 && k < n - 1) {
+            phi(i, k) = osth * (phi(i + 1, k) + phi(i - 1, k) + phi(i, k + 1) +
+                                phi(i, k - 1));
+          }
 #pragma omp barrier
         }
       }
@@ -93,10 +105,10 @@ int main() {
   print_matrix(first);
   print_matrix(sec);
 
-  gauss_seidel(first, 1000);
-  gauss_seidel_par(sec, 1000);
+  gauss_seidel(first, 12);
+  gauss_seidel_par(sec, 12);
 
-  // check(first, sec);
+  check(first, sec);
 
   print_matrix(first);
   print_matrix(sec);
