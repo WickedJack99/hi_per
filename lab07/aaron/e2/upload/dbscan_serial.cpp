@@ -1,4 +1,4 @@
-#include "dbscan.h"
+#include "dbscan_serial.h"
 #include <cmath>
 #include <iostream>
 
@@ -11,6 +11,7 @@ void DBSCAN::run(const std::vector<Point>& points) {
   const int n = dataset_.size();
 
   int clusterIndex = 0;
+
   for (int i = 0; i < n; ++i) {
     Point& point = dataset_[i];
     if (point.clusterID < 0) {
@@ -22,6 +23,10 @@ void DBSCAN::run(const std::vector<Point>& points) {
         expandCluster(point, neighbours, clusterIndex);
       }
     }
+  }
+
+  for (Point point : dataset_) {
+    std::cout << point << std::endl;
   }
 }
 
