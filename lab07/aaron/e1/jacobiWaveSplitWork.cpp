@@ -45,6 +45,7 @@
  * -------------
  */
 
+#include <benchmark/benchmark.h>
 #include "matrix.h"
 #include <omp.h>
 #include <atomic>
@@ -168,24 +169,49 @@ void print_matrix(const Matrix &matrix)
   }
 }
 
-int main()
-{
-  Matrix first = Matrix(8, 8);
-  Matrix sec = Matrix(8, 8);
-
-  fill_matrix(first, 10);
+void benchmarkComputeResult(benchmark::State& state) {
+  int iterations = state.range(0);
+  Matrix sec = Matrix(1000, 1000);
   fill_matrix(sec, 10);
 
-  print_matrix(first);
-  print_matrix(sec);
+  for (auto _ : state) {
+    gauss_seidel(sec, iterations);
+    benchmark::DoNotOptimize(sec);
+  }
+}
 
-  gauss_seidel_lin(first, 1000);
-  gauss_seidel(sec, 1000);
+int main(int argc, char** argv) {
+  ::benchmark::Initialize(&argc, argv);
 
-  check(first, sec);
+  for (int iterations = 0; iterations < 10000; iterations++) {
+    benchmark::RegisterBenchmark("idk", benchmarkComputeResult)
+        ->Arg(iterations)
+        ->Unit(benchmark::kMillisecond);
+  }
 
-  print_matrix(first);
-  print_matrix(sec);
+  ::benchmark::RunSpecifiedBenchmarks();
 
   return 0;
 }
+
+// int main()
+// {
+//   Matrix first = Matrix(8, 8);
+//   Matrix sec = Matrix(8, 8);
+
+//   fill_matrix(first, 10);
+//   fill_matrix(sec, 10);
+
+//   print_matrix(first);
+//   print_matrix(sec);
+
+//   gauss_seidel_lin(first, 1000);
+//   gauss_seidel(sec, 1000);
+
+//   check(first, sec);
+
+//   print_matrix(first);
+//   print_matrix(sec);
+
+//   return 0;
+// }
