@@ -49,8 +49,8 @@ void gauss_seidel_par(Matrix &phi, int maxNumIter) {
             phi(i, k) = osth * (phi(i + 1, k) + phi(i - 1, k) + phi(i, k + 1) +
                                 phi(i, k - 1));
           }
-#pragma omp barrier
         }
+#pragma omp barrier
       }
     }
   }
@@ -98,7 +98,7 @@ void print_matrix(const Matrix &matrix) {
 
 void benchmarkParallel(benchmark::State &state) {
   int iterations = state.range(0);
-  Matrix matrix = Matrix(2402, 2402);
+  Matrix matrix = Matrix(30002, 30002);
 
   fill_matrix(matrix, 10);
 
@@ -110,7 +110,7 @@ void benchmarkParallel(benchmark::State &state) {
 
 void benchmarkSerial(benchmark::State &state) {
   int iterations = state.range(0);
-  Matrix matrix = Matrix(2402, 2402);
+  Matrix matrix = Matrix(30002, 30002);
 
   fill_matrix(matrix, 10);
 
@@ -124,14 +124,32 @@ int main(int argc, char **argv) {
   ::benchmark::Initialize(&argc, argv);
 
   benchmark::RegisterBenchmark("gaus_seidel_parallel", benchmarkParallel)
-      ->Arg(200)
+      ->Arg(10)
       ->Unit(benchmark::kMillisecond);
 
   benchmark::RegisterBenchmark("gaus_seidel_serial", benchmarkSerial)
-      ->Arg(200)
+      ->Arg(10)
       ->Unit(benchmark::kMillisecond);
 
   ::benchmark::RunSpecifiedBenchmarks();
 
   return 0;
 }
+
+// int main(int argc, char **argv) {
+//   int iterations = 200;
+//   Matrix matrix = Matrix(2402, 2402);
+//
+//   fill_matrix(matrix, 1);
+//
+//   Matrix matrix2 = Matrix(2402, 2402);
+//
+//   fill_matrix(matrix2, 1);
+//
+//   gauss_seidel_par(matrix, iterations);
+//   gauss_seidel(matrix2, iterations);
+//
+//   check(matrix, matrix2);
+//
+//   return 0;
+// }
