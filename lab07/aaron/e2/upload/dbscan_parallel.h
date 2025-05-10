@@ -12,13 +12,13 @@ class DBSCAN {
 public:
   DBSCAN(int minPts, double eps);
 
-  void run(const std::vector<Point> &points);
+  void run(const std::vector<Point> &points, int threadNum);
 
   const std::vector<Point> &getPoints() const { return dataset_; }
 
 private:
   std::set<int> regionQuery(const Point &point) const;
-  void initializeNeighbors();
+  void initializeNeighbors(int threadNum);
   bool expandCluster(Point &point, std::set<int> &neighbours, int clusterID);
 
   // void merge(std::vector<int>& n, const std::vector<int>& nPrime) const;

@@ -2,17 +2,18 @@
 #include <atomic>
 #include <cmath>
 #include <iostream>
+#include <omp.h>
 
 namespace HPC {
 
 DBSCAN::DBSCAN(int minPts, double eps) : minPoints_(minPts), epsilon_(eps) {}
 
-void DBSCAN::run(const std::vector<Point> &points) {
+void DBSCAN::run(const std::vector<Point> &points, int threadNum) {
 
   dataset_ = points;
   const int n = dataset_.size();
 
-  initializeNeighbors();
+  initializeNeighbors(threadNum);
 
   int clusterIndex = 0;
   for (int i = 0; i < n; ++i) {
@@ -52,8 +53,8 @@ bool DBSCAN::expandCluster(Point &p, std::set<int> &neighbours, int clusterID) {
   return true;
 }
 
-void DBSCAN::initializeNeighbors() {
-#pragma omp parallel for
+void DBSCAN::initializeNeighbors(int threadNum) {
+#pragma omp parallel for num_threads(threadNum)
   for (int i = 0; i < dataset_.size(); ++i) {
     Point &pointToCheckNeighborsFor = dataset_[i];
     for (int j = 0; j < dataset_.size(); ++j) {
