@@ -26,7 +26,7 @@ void gauss_seidel_par(Matrix &phi, int maxNumIter) {
   const double osth = 1. / 4;
 
   for (int iter = 0; iter < maxNumIter; ++iter) {
-#pragma omp parallel num_threads(10)
+#pragma omp parallel num_threads(12)
     {
       int num_theads = omp_get_num_threads();
       int chunk = (m - 2) / num_theads;
@@ -96,7 +96,19 @@ void print_matrix(const Matrix &matrix) {
   }
 }
 
-void benchmarkComputeResult(benchmark::State &state) {
+void benchmarkParallel(benchmark::State &state) {
+  int iterations = state.range(0);
+  Matrix matrix = Matrix(1202, 1202);
+
+  fill_matrix(matrix, 10);
+
+  for (auto _ : state) {
+    gauss_seidel_par(matrix, iterations);
+    benchmark::DoNotOptimize(matrix);
+  }
+}
+
+void benchmarkSerial(benchmark::State &state) {
   int iterations = state.range(0);
   Matrix matrix = Matrix(1000, 1000);
 
@@ -111,11 +123,13 @@ void benchmarkComputeResult(benchmark::State &state) {
 int main(int argc, char **argv) {
   ::benchmark::Initialize(&argc, argv);
 
-  for (int iterations = 0; iterations < 10000; iterations++) {
-    benchmark::RegisterBenchmark("bench_gaus_seidel", benchmarkComputeResult)
-        ->Arg(iterations)
-        ->Unit(benchmark::kMillisecond);
-  }
+  benchmark::RegisterBenchmark("gaus_seidel_parallel", benchmarkParallel)
+      ->Arg(10000)
+      ->Unit(benchmark::kMillisecond);
+
+  benchmark::RegisterBenchmark("gaus_seidel_serial", benchmarkParallel)
+      ->Arg(10000)
+      ->Unit(benchmark::kMillisecond);
 
   ::benchmark::RunSpecifiedBenchmarks();
 
