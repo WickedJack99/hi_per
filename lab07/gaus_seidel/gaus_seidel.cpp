@@ -98,7 +98,7 @@ void print_matrix(const Matrix &matrix) {
 
 void benchmarkParallel(benchmark::State &state) {
   int iterations = state.range(0);
-  Matrix matrix = Matrix(1202, 1202);
+  Matrix matrix = Matrix(2402, 2402);
 
   fill_matrix(matrix, 10);
 
@@ -110,7 +110,7 @@ void benchmarkParallel(benchmark::State &state) {
 
 void benchmarkSerial(benchmark::State &state) {
   int iterations = state.range(0);
-  Matrix matrix = Matrix(1000, 1000);
+  Matrix matrix = Matrix(2402, 2402);
 
   fill_matrix(matrix, 10);
 
@@ -124,11 +124,11 @@ int main(int argc, char **argv) {
   ::benchmark::Initialize(&argc, argv);
 
   benchmark::RegisterBenchmark("gaus_seidel_parallel", benchmarkParallel)
-      ->Arg(10000)
+      ->Arg(200)
       ->Unit(benchmark::kMillisecond);
 
-  benchmark::RegisterBenchmark("gaus_seidel_serial", benchmarkParallel)
-      ->Arg(10000)
+  benchmark::RegisterBenchmark("gaus_seidel_serial", benchmarkSerial)
+      ->Arg(200)
       ->Unit(benchmark::kMillisecond);
 
   ::benchmark::RunSpecifiedBenchmarks();
