@@ -23,29 +23,28 @@ void gauss_seidel_par(Matrix &phi, int maxNumIter) {
   const int m = phi.dim1();
   const int n = phi.dim2();
 
-  const double osth = 1. / 4;
-
-  for (int iter = 0; iter < maxNumIter; ++iter) {
 #pragma omp parallel num_threads(12)
-    {
+  {
+    for (int iter = 0; iter < maxNumIter; ++iter) {
+      const double osth = 1. / 4;
       int num_theads = omp_get_num_threads();
+      int thread_num = omp_get_thread_num();
       int chunk = (m - 2) / num_theads;
-      int start = 1 + chunk * omp_get_thread_num();
-      int end = chunk * (omp_get_thread_num() + 1);
+      int start = 1 + chunk * thread_num;
+      int end = chunk * (thread_num + 1);
 
       // printf("thread %d, start: %d, end: %d\n", omp_get_thread_num(), start,
       //        end);
 
-      for (int j = 1; j < n + omp_get_num_threads() - 1; ++j) {
-        for (int i = start; i <= end; ++i) {
+      for (int j = 1; j < n + num_theads - 1; ++j) {
+        int k = j - thread_num;
 
-          int k = j - omp_get_thread_num();
+        if (k > 0 && k < n - 1) {
+          for (int i = start; i <= end; ++i) {
+            // printf("thread %d, i: %d, j: %d, k: %d\n", omp_get_thread_num(),
+            // i, j,
+            //        k);
 
-          // printf("thread %d, i: %d, j: %d, k: %d\n", omp_get_thread_num(), i,
-          // j,
-          //        k);
-
-          if (k > 0 && k < n - 1) {
             phi(i, k) = osth * (phi(i + 1, k) + phi(i - 1, k) + phi(i, k + 1) +
                                 phi(i, k - 1));
           }
@@ -98,7 +97,7 @@ void print_matrix(const Matrix &matrix) {
 
 void benchmarkParallel(benchmark::State &state) {
   int iterations = state.range(0);
-  Matrix matrix = Matrix(30002, 30002);
+  Matrix matrix = Matrix(30002, 20002);
 
   fill_matrix(matrix, 10);
 
@@ -110,7 +109,7 @@ void benchmarkParallel(benchmark::State &state) {
 
 void benchmarkSerial(benchmark::State &state) {
   int iterations = state.range(0);
-  Matrix matrix = Matrix(30002, 30002);
+  Matrix matrix = Matrix(30002, 20002);
 
   fill_matrix(matrix, 10);
 
@@ -137,14 +136,14 @@ int main(int argc, char **argv) {
 }
 
 // int main(int argc, char **argv) {
-//   int iterations = 200;
+//   int iterations = 2;
 //   Matrix matrix = Matrix(2402, 2402);
 //
-//   fill_matrix(matrix, 1);
+//   fill_matrix(matrix, 10);
 //
 //   Matrix matrix2 = Matrix(2402, 2402);
 //
-//   fill_matrix(matrix2, 1);
+//   fill_matrix(matrix2, 10);
 //
 //   gauss_seidel_par(matrix, iterations);
 //   gauss_seidel(matrix2, iterations);
