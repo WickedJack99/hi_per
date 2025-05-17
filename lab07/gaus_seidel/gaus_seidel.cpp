@@ -119,36 +119,36 @@ void benchmarkSerial(benchmark::State &state) {
   }
 }
 
-int main(int argc, char **argv) {
-  ::benchmark::Initialize(&argc, argv);
-
-  benchmark::RegisterBenchmark("gaus_seidel_parallel", benchmarkParallel)
-      ->Arg(10)
-      ->Unit(benchmark::kMillisecond);
-
-  benchmark::RegisterBenchmark("gaus_seidel_serial", benchmarkSerial)
-      ->Arg(10)
-      ->Unit(benchmark::kMillisecond);
-
-  ::benchmark::RunSpecifiedBenchmarks();
-
-  return 0;
-}
-
 // int main(int argc, char **argv) {
-//   int iterations = 2;
-//   Matrix matrix = Matrix(2402, 2402);
+//   ::benchmark::Initialize(&argc, argv);
 //
-//   fill_matrix(matrix, 10);
+//   benchmark::RegisterBenchmark("gaus_seidel_parallel", benchmarkParallel)
+//       ->Arg(10)
+//       ->Unit(benchmark::kMillisecond);
 //
-//   Matrix matrix2 = Matrix(2402, 2402);
+//   benchmark::RegisterBenchmark("gaus_seidel_serial", benchmarkSerial)
+//       ->Arg(10)
+//       ->Unit(benchmark::kMillisecond);
 //
-//   fill_matrix(matrix2, 10);
-//
-//   gauss_seidel_par(matrix, iterations);
-//   gauss_seidel(matrix2, iterations);
-//
-//   check(matrix, matrix2);
+//   ::benchmark::RunSpecifiedBenchmarks();
 //
 //   return 0;
 // }
+
+int main(int argc, char **argv) {
+  int iterations = 2;
+  Matrix matrix = Matrix(2402, 2402);
+
+  fill_matrix(matrix, 10);
+
+  Matrix matrix2 = Matrix(2402, 2402);
+
+  fill_matrix(matrix2, 10);
+
+  gauss_seidel_par(matrix, iterations);
+  gauss_seidel(matrix2, iterations);
+
+  check(matrix, matrix2);
+
+  return 0;
+}
