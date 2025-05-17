@@ -66,7 +66,7 @@ void gauss_seidel(Matrix &phi, int maxNumIter)
     }
     std::atomic<int> threadsCount(0);
 
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(static, 10)
     for (int rowToCalculate = 1; rowToCalculate < (n - 1); rowToCalculate++)
     {
       int row = rowToCalculate;
