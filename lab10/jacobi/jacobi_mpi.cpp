@@ -22,10 +22,9 @@ std::vector<double> getFilledBuffer(const Matrix &matrix, int row)
  * indexRowGlobal identifies row in the view of the whole matrix, used from receiving process
  * to identify if lower or upper halo by comparing against rowHaloUpperIndex and rowHaloLowerIndex.
  */
-void sendLocalRow(const Matrix &matrix, const int indexRowLocal, const int receiverRank, const int indexRowGlobal)
+void sendLocalRow(MPI_Request &request, std::vector<double> &row, const Matrix &matrix, const int indexRowLocal, const int receiverRank, const int indexRowGlobal)
 {
-  std::vector<double> row = getFilledBuffer(matrix, indexRowLocal);
-  MPI_Request request;
+  row = getFilledBuffer(matrix, indexRowLocal);
   MPI_Isend(row.data(), row.size(), MPI_DOUBLE, receiverRank, indexRowGlobal, MPI_COMM_WORLD, &request);
 }
 
@@ -63,14 +62,17 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon, int maxNumIter
 
     if (rank == 0)
     {
-      sendLocalRow(phi[t0], numRows - 1, neighborLower, indexRowGlobalEnd);
+      std::vector<double> row;
+      MPI_Request request;
+      sendLocalRow(request, row, phi[t0], numRows - 1, neighborLower, indexRowGlobalEnd);
+      MPI_Wait(&request, MPI_STATUS_IGNORE);
 
       MPI_Request requestLower;
       MPI_Irecv(haloLower.data(), haloLower.size(), MPI_DOUBLE,
                 neighborLower, rowHaloLowerIndex, MPI_COMM_WORLD, &requestLower);
       MPI_Wait(&requestLower, MPI_STATUS_IGNORE);
 
-      for (int i = 1; i < numRows - 1; ++i)
+      for (int i = 1; i < numRows; ++i)
       {
         for (int j = 1; j < numCols - 1; ++j)
         {
@@ -86,14 +88,18 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon, int maxNumIter
 
     else if (rank == (numProc - 1))
     {
-      sendLocalRow(phi[t0], 0, neighborUpper, indexRowGlobalStart);
+      std::vector<double> row;
+
+      MPI_Request request;
+      sendLocalRow(request, row, phi[t0], 0, neighborUpper, indexRowGlobalStart);
+      MPI_Wait(&request, MPI_STATUS_IGNORE);
 
       MPI_Request requestUpper;
       MPI_Irecv(haloUpper.data(), haloUpper.size(), MPI_DOUBLE,
                 neighborUpper, rowHaloUpperIndex, MPI_COMM_WORLD, &requestUpper);
       MPI_Wait(&requestUpper, MPI_STATUS_IGNORE);
 
-      for (int i = 1; i < numRows - 1; ++i)
+      for (int i = 0; i < numRows - 1; ++i)
       {
         for (int j = 1; j < numCols - 1; ++j)
         {
@@ -109,8 +115,16 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon, int maxNumIter
 
     else
     {
-      sendLocalRow(phi[t0], 0, neighborUpper, indexRowGlobalStart);
-      sendLocalRow(phi[t0], numRows - 1, neighborLower, indexRowGlobalEnd);
+      std::vector<double> rowUpper;
+      std::vector<double> rowLower;
+
+      MPI_Request requestSendUpper;
+      MPI_Request requestSendLower;
+      sendLocalRow(requestSendUpper, rowUpper, phi[t0], 0, neighborUpper, indexRowGlobalStart);
+      sendLocalRow(requestSendLower, rowLower, phi[t0], numRows - 1, neighborLower, indexRowGlobalEnd);
+
+      MPI_Request sendRequests[2] = {requestSendUpper, requestSendLower};
+      MPI_Waitall(2, sendRequests, MPI_STATUSES_IGNORE);
 
       MPI_Request requestUpper;
       MPI_Irecv(haloUpper.data(), haloUpper.size(), MPI_DOUBLE,
@@ -156,6 +170,9 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon, int maxNumIter
     // if (nIter % 1000 == 0) {
     //   std::cout << "Iteration " << nIter << ", dist=" << dist << "\n";
     // }
+    double globalDist;
+    MPI_Allreduce(&dist, &globalDist, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+    dist = globalDist;
 
     nIter++;
     std::swap(t0, t1);
