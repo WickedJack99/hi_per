@@ -25,7 +25,8 @@ std::vector<double> getFilledBuffer(const Matrix &matrix, int row)
 void sendLocalRow(const Matrix &matrix, const int indexRowLocal, const int receiverRank, const int indexRowGlobal)
 {
   std::vector<double> row = getFilledBuffer(matrix, indexRowLocal);
-  MPI_Send(row.data(), row.size(), MPI_DOUBLE, receiverRank, indexRowGlobal, MPI_COMM_WORLD);
+  MPI_Request request;
+  MPI_Isend(row.data(), row.size(), MPI_DOUBLE, receiverRank, indexRowGlobal, MPI_COMM_WORLD, &request);
 }
 
 Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon, int maxNumIter)
@@ -64,8 +65,9 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon, int maxNumIter
     {
       sendLocalRow(phi[t0], numRows - 1, neighborLower, indexRowGlobalEnd);
 
-      MPI_Status status;
-      MPI_Recv(haloLower.data(), haloLower.size(), MPI_DOUBLE, neighborLower, rowHaloLowerIndex, MPI_COMM_WORLD, &status);
+      MPI_Request requestLower;
+      MPI_Irecv(haloLower.data(), haloLower.size(), MPI_DOUBLE,
+                neighborLower, rowHaloLowerIndex, MPI_COMM_WORLD, &requestLower);
 
       for (int i = 1; i < numRows - 1; ++i)
       {
@@ -85,8 +87,9 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon, int maxNumIter
     {
       sendLocalRow(phi[t0], 0, neighborUpper, indexRowGlobalStart);
 
-      MPI_Status status;
-      MPI_Recv(haloUpper.data(), haloUpper.size(), MPI_DOUBLE, neighborUpper, rowHaloUpperIndex, MPI_COMM_WORLD, &status);
+      MPI_Request requestUpper;
+      MPI_Irecv(haloUpper.data(), haloUpper.size(), MPI_DOUBLE,
+                neighborUpper, rowHaloUpperIndex, MPI_COMM_WORLD, &requestUpper);
 
       for (int i = 1; i < numRows - 1; ++i)
       {
@@ -107,9 +110,15 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon, int maxNumIter
       sendLocalRow(phi[t0], 0, neighborUpper, indexRowGlobalStart);
       sendLocalRow(phi[t0], numRows - 1, neighborLower, indexRowGlobalEnd);
 
-      MPI_Status status;
-      MPI_Recv(haloUpper.data(), haloUpper.size(), MPI_DOUBLE, neighborUpper, rowHaloUpperIndex, MPI_COMM_WORLD, &status);
-      MPI_Recv(haloLower.data(), haloLower.size(), MPI_DOUBLE, neighborLower, rowHaloLowerIndex, MPI_COMM_WORLD, &status);
+      MPI_Request requestUpper;
+      MPI_Irecv(haloUpper.data(), haloUpper.size(), MPI_DOUBLE,
+                neighborUpper, rowHaloUpperIndex, MPI_COMM_WORLD, &requestUpper);
+      MPI_Request requestLower;
+      MPI_Irecv(haloLower.data(), haloLower.size(), MPI_DOUBLE,
+                neighborLower, rowHaloLowerIndex, MPI_COMM_WORLD, &requestLower);
+
+      MPI_Request requests[2] = {requestUpper, requestLower};
+      MPI_Waitall(2, requests, MPI_STATUSES_IGNORE);
 
       for (int i = 0; i < numRows; ++i)
       {
