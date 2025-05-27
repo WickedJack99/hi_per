@@ -174,7 +174,7 @@ int main(int argc, char* argv[]) {
     //std::cout << "Serial time: " << serialTime << "ms" << std::endl;
     std::cout << "Serial time: ms" << std::endl;
     std::cout << "Parallel time: " << parallelTime << "ms" << std::endl;
-    std::cout << "Speedup: " << serialTime / parallelTime << std::endl;
+    //std::cout << "Speedup: " << serialTime / parallelTime << std::endl;
     std::ofstream fout("benchmark.txt", std::ios::app);
     fout << numProc << "\t" << parallelTime << "\n";
   }
