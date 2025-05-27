@@ -28,7 +28,7 @@ void sendLocalRow(const Matrix &matrix, const int indexRowLocal, const int recei
   MPI_Send(row.data(), row.size(), MPI_DOUBLE, receiverRank, indexRowGlobal, MPI_COMM_WORLD);
 }
 
-Result JacobiMPI::run(const Matrix &init, double epsilon, int maxNumIter)
+Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon, int maxNumIter)
 {
   int rank, numProc;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -151,5 +151,5 @@ Result JacobiMPI::run(const Matrix &init, double epsilon, int maxNumIter)
     std::swap(t0, t1);
   }
 
-  return Result{phi[t0], dist, nIter};
+  return Jacobi::Result{phi[t0], dist, nIter};
 }
