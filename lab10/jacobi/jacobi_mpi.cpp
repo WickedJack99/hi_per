@@ -68,6 +68,7 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon, int maxNumIter
       MPI_Request requestLower;
       MPI_Irecv(haloLower.data(), haloLower.size(), MPI_DOUBLE,
                 neighborLower, rowHaloLowerIndex, MPI_COMM_WORLD, &requestLower);
+      MPI_Wait(&requestLower, MPI_STATUS_IGNORE);
 
       for (int i = 1; i < numRows - 1; ++i)
       {
@@ -90,6 +91,7 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon, int maxNumIter
       MPI_Request requestUpper;
       MPI_Irecv(haloUpper.data(), haloUpper.size(), MPI_DOUBLE,
                 neighborUpper, rowHaloUpperIndex, MPI_COMM_WORLD, &requestUpper);
+      MPI_Wait(&requestUpper, MPI_STATUS_IGNORE);
 
       for (int i = 1; i < numRows - 1; ++i)
       {
