@@ -109,7 +109,6 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon, int maxNumIter
 
       MPI_Status status;
       MPI_Recv(haloUpper.data(), haloUpper.size(), MPI_DOUBLE, neighborUpper, rowHaloUpperIndex, MPI_COMM_WORLD, &status);
-      MPI_Status status;
       MPI_Recv(haloLower.data(), haloLower.size(), MPI_DOUBLE, neighborLower, rowHaloLowerIndex, MPI_COMM_WORLD, &status);
 
       for (int i = 0; i < numRows; ++i)
