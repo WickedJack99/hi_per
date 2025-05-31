@@ -45,7 +45,7 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon,
 
     if (rank == 0) {
       MPI_Request send_lower;
-      MPI_Isend(phi[t1].get_row(numRows - 1), numCols, MPI_DOUBLE,
+      MPI_Isend(&phi[t1].get_row(numRows - 1), numCols, MPI_DOUBLE,
                 neighborUpper, 0, MPI_COMM_WORLD, &send_lower);
 
       MPI_Request requestLower;
@@ -70,7 +70,7 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon,
 
     else if (rank == (numProc - 1)) {
       MPI_Request send_upper;
-      MPI_Isend(phi[t1].get_row(rank * numRows), numCols, MPI_DOUBLE,
+      MPI_Isend(&phi[t1].get_row(rank * numRows), numCols, MPI_DOUBLE,
                 neighborLower, 0, MPI_COMM_WORLD, &send_upper);
 
       MPI_Request request_upper;
@@ -95,9 +95,9 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon,
     else {
       MPI_Request send_upper;
       MPI_Request send_lower;
-      MPI_Isend(phi[t1].get_row(rank * numRows), numCols, MPI_DOUBLE,
+      MPI_Isend(&phi[t1].get_row(rank * numRows), numCols, MPI_DOUBLE,
                 neighborLower, 0, MPI_COMM_WORLD, &send_upper);
-      MPI_Isend(phi[t1].get_row(rank * numRows + numRows), numCols, MPI_DOUBLE,
+      MPI_Isend(&phi[t1].get_row(rank * numRows + numRows), numCols, MPI_DOUBLE,
                 neighborLower, 0, MPI_COMM_WORLD, &send_lower);
 
       MPI_Request request_upper;
