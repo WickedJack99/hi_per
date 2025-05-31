@@ -114,10 +114,15 @@ public:
   // scalar division
   Matrix &operator/=(double x);
 
-  std::vector<double> &get_row(int i) {
-    size_t start = i * this->numCols_;
-    return std::vector<double>(this->data_ + start,
-                               this->data_ + start + this->numCols_);
+  std::vector<double> get_row(int i) {
+    std::vector<double> row(0);
+    int start = this->cols() * i;
+    int end = this->cols() * i + cols();
+
+    for (int j = start; j < end; j++) {
+      row.push_back(this->data()[j]);
+    }
+    return row;
   }
 
 private:
