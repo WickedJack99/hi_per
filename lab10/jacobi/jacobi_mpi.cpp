@@ -156,9 +156,9 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon,
 
     nIter++;
     std::swap(t0, t1);
-    if (nIter == 100) {
-      std::cout << phi[t1] << std::endl;
-    }
+    // if (nIter == 100) {
+    //   std::cout << phi[t1] << std::endl;
+    // }
   }
 
   // std::cout << phi[t1] << std::endl;
