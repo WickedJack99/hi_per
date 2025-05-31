@@ -1,5 +1,6 @@
 #include "jacobi.h"
 #include "jacobi_main.h"
+#include <vector>
 
 std::vector<double> getFilledBuffer(const Matrix &matrix, int row) {
   int numCols = matrix.cols();
@@ -45,15 +46,16 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon,
 
     if (rank == 0) {
       MPI_Request send_lower;
-      MPI_Isend(&phi[t1].get_row(numRows - 1), numCols, MPI_DOUBLE,
-                neighborUpper, 0, MPI_COMM_WORLD, &send_lower);
+      std::vector<double> send_vec_low = phi[t1].get_row(numRows - 1);
+      MPI_Isend(&send_vec_low, numCols, MPI_DOUBLE, neighborUpper, 0,
+                MPI_COMM_WORLD, &send_lower);
 
       MPI_Request requestLower;
       MPI_Irecv(haloLower.data(), numCols, MPI_DOUBLE, neighborLower, 0,
                 MPI_COMM_WORLD, &requestLower);
 
       MPI_Wait(&send_lower, MPI_STATUS_IGNORE);
-      MPI_Wait(&requestUpper, MPI_STATUS_IGNORE);
+      MPI_Wait(&requestLower, MPI_STATUS_IGNORE);
 
       for (int i = 1; i < numRows; ++i) {
         for (int j = 1; j < numCols - 1; ++j) {
@@ -70,8 +72,9 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon,
 
     else if (rank == (numProc - 1)) {
       MPI_Request send_upper;
-      MPI_Isend(&phi[t1].get_row(rank * numRows), numCols, MPI_DOUBLE,
-                neighborLower, 0, MPI_COMM_WORLD, &send_upper);
+      std::vector<double> send_vec_up = phi[t1].get_row(rank * numRows);
+      MPI_Isend(&send_vec_up, numCols, MPI_DOUBLE, neighborLower, 0,
+                MPI_COMM_WORLD, &send_upper);
 
       MPI_Request request_upper;
       MPI_Irecv(haloUpper.data(), numCols, MPI_DOUBLE, neighborUpper, 0,
@@ -95,10 +98,15 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon,
     else {
       MPI_Request send_upper;
       MPI_Request send_lower;
-      MPI_Isend(&phi[t1].get_row(rank * numRows), numCols, MPI_DOUBLE,
-                neighborLower, 0, MPI_COMM_WORLD, &send_upper);
-      MPI_Isend(&phi[t1].get_row(rank * numRows + numRows), numCols, MPI_DOUBLE,
-                neighborLower, 0, MPI_COMM_WORLD, &send_lower);
+
+      std::vector<double> send_vec_up = phi[t1].get_row(rank * numRows);
+      MPI_Isend(&send_vec_up, numCols, MPI_DOUBLE, neighborUpper, 0,
+                MPI_COMM_WORLD, &send_upper);
+
+      std::vector<double> send_vec_low =
+          phi[t1].get_row(rank * numRows + numRows);
+      MPI_Isend(&send_vec_low, numCols, MPI_DOUBLE, neighborLower, 0,
+                MPI_COMM_WORLD, &send_lower);
 
       MPI_Request request_upper;
       MPI_Request request_lower;
