@@ -20,7 +20,7 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon,
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &numProc);
   std::cout << "rank: " << rank << std::endl;
-  std::cout << "numProc: " << numProc << std::endl;
+  // std::cout << "numProc: " << numProc << std::endl;
 
   std::vector<Matrix> phi(2, init);
 
