@@ -160,14 +160,5 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon,
     std::swap(t0, t1);
   }
 
-  Matrix result = Matrix::zeros(numProc * numRows, numCols);
-
-  if (rank == 0) {
-    std::cout << "try to gather" << std::endl;
-  }
-
-  MPI_Gather(phi[t0].data(), numRows * numCols, MPI_DOUBLE, result.data(),
-             numRows * numCols, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-
-  return Jacobi::Result{result, dist, nIter};
+  return Jacobi::Result{phi[t0], dist, nIter};
 }
