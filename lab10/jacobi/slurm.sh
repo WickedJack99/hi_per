@@ -5,4 +5,4 @@
 #SBATCH --cpus-per-task=1           # Anzahl CPU-Kerne pro Task
 
 # Programm starten
-./a.out
+./Jacobi
