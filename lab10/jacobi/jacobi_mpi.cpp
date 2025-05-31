@@ -72,12 +72,6 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon,
                                  phi[t0](i, j + 1) + phi[t0](i, j - 1));
           const double diff = phi[t1](i, j) - phi[t0](i, j);
           dist = std::max(dist, std::abs(diff));
-          if (nIter == 50) {
-            std::cout << phi[t1](i, j);
-          }
-        }
-        if (nIter == 50) {
-          std::cout << std::endl;
         }
       }
     }
@@ -156,9 +150,6 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon,
       }
     }
 
-    // if (nIter % 1000 == 0) {
-    //   std::cout << "Iteration " << nIter << ", dist=" << dist << "\n";
-    // }
     double globalDist;
     MPI_Allreduce(&dist, &globalDist, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
     dist = globalDist;
@@ -166,6 +157,8 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon,
     nIter++;
     std::swap(t0, t1);
   }
+
+  std::cout << phi[t1] << std::endl;
 
   return Jacobi::Result{phi[t1], dist, nIter};
 }
