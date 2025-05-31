@@ -5,4 +5,4 @@
 #SBATCH --ntasks-per-node=12
 
 # Programm starten
-mpirun ./jacobi
+srun --mpi=pmix  ./jacobi
