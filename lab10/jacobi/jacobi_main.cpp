@@ -156,7 +156,7 @@ int main(int argc, char *argv[]) {
   // Result is saved to file.
   // Use this to graphically verify the correctness of the parallel
   // implementation.
-  runSerial(n, eps, maxNumIter);
+  // runSerial(n, eps, maxNumIter);
 
   runParallel(n, eps, maxNumIter);
 
