@@ -1,6 +1,7 @@
 #include "jacobi.h"
 #include "jacobi_main.h"
 #include <iostream>
+#include <iterator>
 #include <vector>
 
 std::vector<double> getFilledBuffer(const Matrix &matrix, int row) {
@@ -51,7 +52,7 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon,
 
     if (rank == 0) {
       MPI_Request send_lower;
-      std::vector<double> send_vec_low = phi[t1].get_row(numRows - 1);
+      std::vector<double> send_vec_low = phi[t0].get_row(numRows - 1);
       MPI_Isend(&send_vec_low, numCols, MPI_DOUBLE, neighborLower, 0,
                 MPI_COMM_WORLD, &send_lower);
 
@@ -71,13 +72,17 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon,
                                  phi[t0](i, j + 1) + phi[t0](i, j - 1));
           const double diff = phi[t1](i, j) - phi[t0](i, j);
           dist = std::max(dist, std::abs(diff));
+          if (nIter == 50) {
+            std::cout << phi[t1](i, j) << std::end;
+          }
         }
+        std::cout << phi[t1](i, j) << std::endl;
       }
     }
 
     else if (rank == (numProc - 1)) {
       MPI_Request send_upper;
-      std::vector<double> send_vec_up = phi[t1].get_row(rank * numRows);
+      std::vector<double> send_vec_up = phi[t0].get_row(rank * numRows);
       MPI_Isend(&send_vec_up, numCols, MPI_DOUBLE, neighborUpper, 0,
                 MPI_COMM_WORLD, &send_upper);
 
@@ -104,12 +109,12 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon,
       MPI_Request send_upper;
       MPI_Request send_lower;
 
-      std::vector<double> send_vec_up = phi[t1].get_row(rank * numRows);
+      std::vector<double> send_vec_up = phi[t0].get_row(rank * numRows);
       MPI_Isend(&send_vec_up, numCols, MPI_DOUBLE, neighborUpper, 0,
                 MPI_COMM_WORLD, &send_upper);
 
       std::vector<double> send_vec_low =
-          phi[t1].get_row(rank * numRows + numRows);
+          phi[t0].get_row(rank * numRows + numRows);
       MPI_Isend(&send_vec_low, numCols, MPI_DOUBLE, neighborLower, 0,
                 MPI_COMM_WORLD, &send_lower);
 
@@ -160,5 +165,5 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon,
     std::swap(t0, t1);
   }
 
-  return Jacobi::Result{phi[t0], dist, nIter};
+  return Jacobi::Result{phi[t1], dist, nIter};
 }
