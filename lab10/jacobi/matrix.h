@@ -115,7 +115,9 @@ public:
   Matrix &operator/=(double x);
 
   std::vector<double> &get_row(int i) {
-    return slice(i * this->cols(), this->cols());
+    size_t start = i * this->numCols_;
+    return std::vector<double>(this->data() + start,
+                               this->data() + start + this->numCols_);
   }
 
 private:
