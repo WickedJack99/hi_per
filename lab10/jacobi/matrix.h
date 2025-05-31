@@ -116,8 +116,8 @@ public:
 
   std::vector<double> &get_row(int i) {
     size_t start = i * this->numCols_;
-    return std::vector<double>(this->data() + start,
-                               this->data() + start + this->numCols_);
+    return std::vector<double>(this->data_ + start,
+                               this->data_ + start + this->numCols_);
   }
 
 private:
