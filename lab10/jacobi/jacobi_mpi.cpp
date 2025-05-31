@@ -76,7 +76,9 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon,
             std::cout << phi[t1](i, j);
           }
         }
-        std::cout << std::endl;
+        if (nIter == 50) {
+          std::cout << std::endl;
+        }
       }
     }
 
