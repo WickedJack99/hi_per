@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --job-name=G5_jacobi         # Name des Jobs
 #SBATCH --output=jacobi.txt      # Output-Datei (%j = Job-ID)
-#SBATCH --ntasks=48                  # Anzahl Tasks (z. B. MPI-Prozesse)
-#SBATCH --cpus-per-task=1           # Anzahl CPU-Kerne pro Task
+#SBATCH --nodes=4              # Nutze z. B. 4 Nodes
+#SBATCH --ntasks-per-node=12
 
 # Programm starten
 ./jacobi
