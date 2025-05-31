@@ -18,5 +18,5 @@ def compare_csv(file1, file2):
                     print(f"Unterschied in Zeile {row_idx}, Spalte {col_idx}: '{cell1}' ≠ '{cell2}'")
 
 if __name__ == "__main__":
-    compare_csv("result_parallel.asc", "result_seriell.asc")
+    compare_csv("result_parallel.asc", "result_seriall.asc")
 
