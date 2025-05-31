@@ -73,10 +73,10 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon,
           const double diff = phi[t1](i, j) - phi[t0](i, j);
           dist = std::max(dist, std::abs(diff));
           if (nIter == 50) {
-            std::cout << phi[t1](i, j) << std::end;
+            std::cout << phi[t1](i, j);
           }
         }
-        std::cout << phi[t1](i, j) << std::endl;
+        std::cout << std::endl;
       }
     }
 
