@@ -169,5 +169,5 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon,
   MPI_Gather(phi[t0].data(), numRows * numCols, MPI_DOUBLE, result.data(),
              numRows * numCols, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-  return Jacobi::Result{phi[t0], dist, nIter};
+  return Jacobi::Result{result, dist, nIter};
 }
