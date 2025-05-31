@@ -1,5 +1,6 @@
 #include "jacobi.h"
 #include "jacobi_main.h"
+#include <iostream>
 #include <vector>
 
 std::vector<double> getFilledBuffer(const Matrix &matrix, int row) {
@@ -26,6 +27,8 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon,
 
   const int neighborUpper = rank - 1;
   const int neighborLower = rank + 1;
+
+  std::cout << neighborUpper << ":" << neighborLower << std::endl;
 
   const int indexRowGlobalStart = (rank * numRows);
   const int indexRowGlobalEnd = (rank * numRows) + (numRows - 1);
