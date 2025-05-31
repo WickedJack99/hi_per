@@ -156,7 +156,8 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon,
 
     nIter++;
     std::swap(t0, t1);
-    if (nIter == maxNumIter) {
+    if (nIter == 1741) {
+
       std::cout << phi[t1] << std::endl;
     }
   }
