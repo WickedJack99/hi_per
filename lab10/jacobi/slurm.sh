@@ -5,4 +5,4 @@
 #SBATCH --ntasks-per-node=12
 
 # Programm starten
-./jacobi
+srun ./jacobi
