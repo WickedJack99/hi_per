@@ -47,117 +47,69 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon,
 
   int t0 = 0; // array index of current timestep
   int t1 = 1; // array index of next timestep
+
+  // Tags für MPI senden/empfangen besser konstant machen
+  const int TAG_UP = 0;
+  const int TAG_DOWN = 1;
+
+  // Globale Distanz synchronisieren
   while (dist > epsilon && nIter < maxNumIter) {
     dist = 0;
 
-    if (rank == 0) {
-      MPI_Request send_lower;
-      std::vector<double> send_vec_low = phi[t0].get_row(indexRowGlobalEnd);
-      MPI_Isend(send_vec_low.data(), numCols, MPI_DOUBLE, neighborLower,
-                indexRowGlobalEnd, MPI_COMM_WORLD, &send_lower);
+    std::vector<double> send_vec_up, send_vec_low;
 
-      MPI_Request requestLower;
-      MPI_Irecv(haloLower.data(), numCols, MPI_DOUBLE, neighborLower,
-                rowHaloLowerIndex, MPI_COMM_WORLD, &requestLower);
+    MPI_Request send_upper, send_lower;
+    MPI_Request request_upper, request_lower;
 
-      MPI_Wait(&send_lower, MPI_STATUS_IGNORE);
-      MPI_Wait(&requestLower, MPI_STATUS_IGNORE);
-
-      for (int i = 1; i < numRows; ++i) {
-        for (int j = 1; j < numCols - 1; ++j) {
-          double valueBottom;
-          (i == numRows - 1) ? valueBottom = haloLower[j]
-                             : valueBottom = phi[t0](i + 1, j);
-          phi[t1](i, j) = .25 * (valueBottom + phi[t0](i - 1, j) +
-                                 phi[t0](i, j + 1) + phi[t0](i, j - 1));
-          const double diff = phi[t1](i, j) - phi[t0](i, j);
-          dist = std::max(dist, std::abs(diff));
-        }
-      }
+    if (rank != 0) {
+      send_vec_up = phi[t0].get_row(0); // oberste lokale Zeile
+      MPI_Isend(send_vec_up.data(), numCols, MPI_DOUBLE, neighborUpper, TAG_UP,
+                MPI_COMM_WORLD, &send_upper);
+      MPI_Irecv(haloUpper.data(), numCols, MPI_DOUBLE, neighborUpper, TAG_DOWN,
+                MPI_COMM_WORLD, &request_upper);
     }
 
-    else if (rank == (numProc - 1)) {
-      MPI_Request send_upper;
-      std::vector<double> send_vec_up = phi[t0].get_row(indexRowGlobalStart);
-      MPI_Isend(send_vec_up.data(), numCols, MPI_DOUBLE, neighborUpper,
-                indexRowGlobalStart, MPI_COMM_WORLD, &send_upper);
-
-      MPI_Request request_upper;
-      MPI_Irecv(haloUpper.data(), numCols, MPI_DOUBLE, neighborUpper,
-                rowHaloUpperIndex, MPI_COMM_WORLD, &request_upper);
-
-      MPI_Wait(&send_upper, MPI_STATUS_IGNORE);
-      MPI_Wait(&request_upper, MPI_STATUS_IGNORE);
-
-      for (int i = 0; i < numRows - 1; ++i) {
-        for (int j = 1; j < numCols - 1; ++j) {
-          double valueTop;
-          (i == 0) ? valueTop = haloUpper[j] : valueTop = phi[t0](i - 1, j);
-          phi[t1](i, j) = .25 * (phi[t0](i + 1, j) + valueTop +
-                                 phi[t0](i, j + 1) + phi[t0](i, j - 1));
-          const double diff = phi[t1](i, j) - phi[t0](i, j);
-          dist = std::max(dist, std::abs(diff));
-        }
-      }
+    if (rank != numProc - 1) {
+      send_vec_low = phi[t0].get_row(numRows - 1); // unterste lokale Zeile
+      MPI_Isend(send_vec_low.data(), numCols, MPI_DOUBLE, neighborLower,
+                TAG_DOWN, MPI_COMM_WORLD, &send_lower);
+      MPI_Irecv(haloLower.data(), numCols, MPI_DOUBLE, neighborLower, TAG_UP,
+                MPI_COMM_WORLD, &request_lower);
     }
 
-    else {
-      MPI_Request send_upper;
-      MPI_Request send_lower;
-
-      std::vector<double> send_vec_up = phi[t0].get_row(indexRowGlobalStart);
-      MPI_Isend(send_vec_up.data(), numCols, MPI_DOUBLE, neighborUpper,
-                indexRowGlobalStart, MPI_COMM_WORLD, &send_upper);
-
-      std::vector<double> send_vec_low = phi[t0].get_row(indexRowGlobalEnd);
-      MPI_Isend(send_vec_low.data(), numCols, MPI_DOUBLE, neighborLower,
-                indexRowGlobalEnd, MPI_COMM_WORLD, &send_lower);
-
-      MPI_Request request_upper;
-      MPI_Request request_lower;
-      MPI_Irecv(haloUpper.data(), numCols, MPI_DOUBLE, neighborUpper,
-                rowHaloUpperIndex, MPI_COMM_WORLD, &request_upper);
-      MPI_Irecv(haloLower.data(), numCols, MPI_DOUBLE, neighborLower,
-                rowHaloLowerIndex, MPI_COMM_WORLD, &request_lower);
-
+    if (rank != 0) {
       MPI_Wait(&send_upper, MPI_STATUS_IGNORE);
-      MPI_Wait(&send_lower, MPI_STATUS_IGNORE);
       MPI_Wait(&request_upper, MPI_STATUS_IGNORE);
+    }
+
+    if (rank != numProc - 1) {
+      MPI_Wait(&send_lower, MPI_STATUS_IGNORE);
       MPI_Wait(&request_lower, MPI_STATUS_IGNORE);
+    }
 
-      for (int i = 0; i < numRows; ++i) {
-        for (int j = 1; j < numCols - 1; ++j) {
-          if (i == 0) {
-            double valueTop = haloUpper[j];
-            phi[t1](i, j) = .25 * (phi[t0](i + 1, j) + valueTop +
-                                   phi[t0](i, j + 1) + phi[t0](i, j - 1));
-            const double diff = phi[t1](i, j) - phi[t0](i, j);
-            dist = std::max(dist, std::abs(diff));
-          } else if (i == numRows - 1) {
-            double valueBottom = haloLower[j];
-            phi[t1](i, j) = .25 * (valueBottom + phi[t0](i - 1, j) +
-                                   phi[t0](i, j + 1) + phi[t0](i, j - 1));
-            const double diff = phi[t1](i, j) - phi[t0](i, j);
-            dist = std::max(dist, std::abs(diff));
-          } else {
-            phi[t1](i, j) = .25 * (phi[t0](i + 1, j) + phi[t0](i - 1, j) +
-                                   phi[t0](i, j + 1) + phi[t0](i, j - 1));
-            const double diff = phi[t1](i, j) - phi[t0](i, j);
-            dist = std::max(dist, std::abs(diff));
-          }
-        }
+    for (int i = 0; i < numRows; ++i) {
+      for (int j = 1; j < numCols - 1; ++j) {
+        double top = (i == 0) ? (rank == 0 ? phi[t0](i, j) : haloUpper[j])
+                              : phi[t0](i - 1, j);
+        double bottom =
+            (i == numRows - 1)
+                ? (rank == numProc - 1 ? phi[t0](i, j) : haloLower[j])
+                : phi[t0](i + 1, j);
+
+        phi[t1](i, j) =
+            0.25 * (top + bottom + phi[t0](i, j - 1) + phi[t0](i, j + 1));
+        double diff = phi[t1](i, j) - phi[t0](i, j);
+        dist = std::max(dist, std::abs(diff));
       }
     }
 
+    // Globale max-Distanz berechnen
     double globalDist = 0;
     MPI_Allreduce(&dist, &globalDist, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
     dist = globalDist;
 
     nIter++;
     std::swap(t0, t1);
-    // if (nIter == 100) {
-    //   std::cout << phi[t1] << std::endl;
-    // }
   }
 
   // std::cout << phi[t1] << std::endl;
