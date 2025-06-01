@@ -150,7 +150,7 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon,
       }
     }
 
-    double globalDist;
+    double globalDist = 0;
     MPI_Allreduce(&dist, &globalDist, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
     dist = globalDist;
 
