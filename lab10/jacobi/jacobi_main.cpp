@@ -156,25 +156,25 @@ int main(int argc, char *argv[]) {
   // Result is saved to file.
   // Use this to graphically verify the correctness of the parallel
   // implementation.
-  runSerial(n, eps, maxNumIter);
+  // runSerial(n, eps, maxNumIter);
 
-  runParallel(n, eps, maxNumIter);
+  // runParallel(n, eps, maxNumIter);
 
   // Run the benchmark
-  // double serialTime = 0;
-  // double parallelTime = 0;
+  double serialTime = 0;
+  double parallelTime = 0;
 
-  // serialTime = serialBenchmark(n, eps, maxNumIter);
-  //  parallelTime = parallelBenchmark(n, eps, maxNumIter);
-  //
-  //  if (rank == 0) {
-  //    //std::cout << "Serial time: " << serialTime << "ms" << std::endl;
-  //    std::cout << "Serial time: ms" << std::endl;
-  //    std::cout << "Parallel time: " << parallelTime << "ms" << std::endl;
-  //    //std::cout << "Speedup: " << serialTime / parallelTime << std::endl;
-  //    std::ofstream fout("benchmark.txt", std::ios::app);
-  //    fout << numProc << "\t" << parallelTime << "\n";
-  //  }
+  serialTime = serialBenchmark(n, eps, maxNumIter);
+  parallelTime = parallelBenchmark(n, eps, maxNumIter);
+
+  if (rank == 0) {
+    // std::cout << "Serial time: " << serialTime << "ms" << std::endl;
+    std::cout << "Serial time: ms" << std::endl;
+    std::cout << "Parallel time: " << parallelTime << "ms" << std::endl;
+    // std::cout << "Speedup: " << serialTime / parallelTime << std::endl;
+    std::ofstream fout("benchmark.txt", std::ios::app);
+    fout << numProc << "\t" << parallelTime << "\n";
+  }
 
   MPI_Finalize();
 }
