@@ -1,5 +1,6 @@
 #!/bin/bash
 git pull
 make
-sbatch slurm.sh
+python3 creator.py
+sleep 0.5
 squeue
