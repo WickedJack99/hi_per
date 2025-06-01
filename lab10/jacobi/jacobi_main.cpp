@@ -161,19 +161,19 @@ int main(int argc, char *argv[]) {
   runParallel(n, eps, maxNumIter);
 
   // Run the benchmark
-  // double serialTime = 0;
-  // double parallelTime = 0;
-  //
-  // serialTime = serialBenchmark(n, eps, maxNumIter);
-  // parallelTime = parallelBenchmark(n, eps, maxNumIter);
+  double serialTime = 0;
+  double parallelTime = 0;
 
-  // if (rank == 0) {
-  //   std::cout << "Serial time: " << serialTime << "ms" << std::endl;
-  //   std::cout << "Parallel time: " << parallelTime << "ms" << std::endl;
-  //   std::cout << "Speedup: " << serialTime / parallelTime << std::endl;
-  //   std::ofstream fout("benchmark.txt", std::ios::app);
-  //   fout << numProc << "\t" << parallelTime << "\n";
-  // }
+  serialTime = serialBenchmark(n, eps, maxNumIter);
+  parallelTime = parallelBenchmark(n, eps, maxNumIter);
+
+  if (rank == 0) {
+    std::cout << "Serial time: " << serialTime << "ms" << std::endl;
+    std::cout << "Parallel time: " << parallelTime << "ms" << std::endl;
+    std::cout << "Speedup: " << serialTime / parallelTime << std::endl;
+    std::ofstream fout("benchmark.txt", std::ios::app);
+    fout << numProc << "\t" << parallelTime << "\n";
+  }
 
   MPI_Finalize();
 }
