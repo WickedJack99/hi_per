@@ -1,0 +1,6 @@
+Starting serial benchmark
+Serial benchmark finished, time=175588ms
+Parallel benchmark finished, time=7676.71ms
+Serial time: 175588ms
+Parallel time: 7676.71ms
+Speedup: 22.8728

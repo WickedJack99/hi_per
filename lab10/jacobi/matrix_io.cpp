@@ -1,16 +1,16 @@
+#include "matrix_io.h"
+#include "matrix.h"
+#include <exception>
 #include <fstream>
 #include <mpi.h>
-#include <exception>
-#include "matrix.h"
-#include "matrix_io.h"
 
 MatrixIO::MatrixIO() {
   MPI_Comm_rank(MPI_COMM_WORLD, &rank_);
   MPI_Comm_size(MPI_COMM_WORLD, &numProc_);
 }
 
-void MatrixIO::saveDistributed(const Matrix& distributedMatrix,
-                               const std::string& filename) {
+void MatrixIO::saveDistributed(const Matrix &distributedMatrix,
+                               const std::string &filename) {
   Matrix mat = gatherMatrixOnRoot(distributedMatrix);
 
   if (rank_ == 0) {
@@ -18,7 +18,7 @@ void MatrixIO::saveDistributed(const Matrix& distributedMatrix,
   }
 }
 
-void MatrixIO::saveSerial(const Matrix& m, const std::string& filename) {
+void MatrixIO::saveSerial(const Matrix &m, const std::string &filename) {
   std::ofstream fout(filename);
   const int numRows = m.rows();
   const int numCols = m.cols();
@@ -31,7 +31,7 @@ void MatrixIO::saveSerial(const Matrix& m, const std::string& filename) {
   }
 }
 
-Matrix MatrixIO::loadDistributed(const std::string& filename) {
+Matrix MatrixIO::loadDistributed(const std::string &filename) {
   Matrix matrixOnRoot = Matrix::zeros(0, 0);
   if (rank_ == 0) {
     matrixOnRoot = loadSerial(filename);
@@ -41,7 +41,7 @@ Matrix MatrixIO::loadDistributed(const std::string& filename) {
   return distributedMatrix;
 }
 
-Matrix MatrixIO::loadSerial(const std::string& filename) {
+Matrix MatrixIO::loadSerial(const std::string &filename) {
   std::ifstream fin(filename);
 
   // Check first character (has to be #)
@@ -66,7 +66,7 @@ Matrix MatrixIO::loadSerial(const std::string& filename) {
   return mat;
 }
 
-Matrix MatrixIO::gatherMatrixOnRoot(const Matrix& distributedMatrix) {
+Matrix MatrixIO::gatherMatrixOnRoot(const Matrix &distributedMatrix) {
   const int numRowsLocal = distributedMatrix.rows();
   const int numCols = distributedMatrix.cols();
   const int numRowsTotal = numRowsLocal * numProc_;
@@ -84,7 +84,7 @@ Matrix MatrixIO::gatherMatrixOnRoot(const Matrix& distributedMatrix) {
   return matrixOnRoot;
 }
 
-Matrix MatrixIO::scatterMatrixFromRoot(const Matrix& matrixOnRoot) {
+Matrix MatrixIO::scatterMatrixFromRoot(const Matrix &matrixOnRoot) {
   int numRowsTotal = matrixOnRoot.rows();
   int numCols = matrixOnRoot.cols();
 
