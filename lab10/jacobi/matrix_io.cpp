@@ -22,10 +22,10 @@ void MatrixIO::saveSerial(const Matrix &m, const std::string &filename) {
   std::ofstream fout(filename);
   const int numRows = m.rows();
   const int numCols = m.cols();
-  // fout << numRows << "," << numCols << "\n";
+  fout << "# " << numRows << "\t" << numCols << "\n";
   for (int i = 0; i < numRows; ++i) {
     for (int j = 0; j < numCols; ++j) {
-      fout << m(i, j) << ",";
+      fout << m(i, j) << "\t";
     }
     fout << "\n";
   }
