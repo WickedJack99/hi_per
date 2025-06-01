@@ -106,7 +106,7 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon,
       MPI_Request send_lower;
 
       std::vector<double> send_vec_up = phi[t0].get_row(rank * numRows);
-      MPI_Isend(send_vec_up.data()), numCols, MPI_DOUBLE, neighborUpper, 0,
+      MPI_Isend(send_vec_up.data(), numCols, MPI_DOUBLE, neighborUpper, 0,
                 MPI_COMM_WORLD, &send_upper);
 
       std::vector<double> send_vec_low =
