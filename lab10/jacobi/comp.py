@@ -18,7 +18,7 @@ def compare_csv(file1, file2):
                 try:
                     if not math.isclose(float(cell1), float(cell2), abs_tol=1e-7):
                         print(f"Unterschied in Zeile {row_idx}, Spalte {col_idx}: {cell1} ≠ {cell2} diff: {abs(float(cell1) - float(cell2))}")
-                except Exception e:
+                except ValueError:
                     print(f"{cell1}: {cell2}")
 
 
