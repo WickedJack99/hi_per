@@ -162,5 +162,5 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon,
   }
 
   // std::cout << phi[t1] << std::endl;
-  return Jacobi::Result{phi[t1], dist, nIter};
+  return Jacobi::Result{phi[t0], dist, nIter};
 }
