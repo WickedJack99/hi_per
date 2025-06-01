@@ -15,8 +15,8 @@ def compare_csv(file1, file2):
                 print(f"Zeile {row_idx}: unterschiedliche Spaltenanzahl")
                 continue
             for col_idx, (cell1, cell2) in enumerate(zip(row1, row2), start=1):
-                if not math.isclose(cell1, cell2, abs_tol=1e-7):
-                    print(f"Unterschied in Zeile {row_idx}, Spalte {col_idx}: '{cell1}' ≠ '{cell2}'")
+                if not math.isclose(float(cell1), float(cell2), abs_tol=1e-7):
+                    print(f"Unterschied in Zeile {row_idx}, Spalte {col_idx}: {cell1} ≠ {cell2} diff: {abs(float(cell1) - float(cell2))}")
 
 if __name__ == "__main__":
     compare_csv("result_parallel.asc", "result_serial.asc")
