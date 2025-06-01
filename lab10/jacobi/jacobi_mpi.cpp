@@ -53,12 +53,12 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon,
     if (rank == 0) {
       MPI_Request send_lower;
       std::vector<double> send_vec_low = phi[t0].get_row(numRows - 1);
-      MPI_Isend(send_vec_low.data(), numCols, MPI_DOUBLE, neighborLower, 0,
-                MPI_COMM_WORLD, &send_lower);
+      MPI_Isend(send_vec_low.data(), numCols, MPI_DOUBLE, neighborLower,
+                indexRowGlobalEnd, MPI_COMM_WORLD, &send_lower);
 
       MPI_Request requestLower;
-      MPI_Irecv(haloLower.data(), numCols, MPI_DOUBLE, neighborLower, 0,
-                MPI_COMM_WORLD, &requestLower);
+      MPI_Irecv(haloLower.data(), numCols, MPI_DOUBLE, neighborLower,
+                rowHaloLowerIndex, MPI_COMM_WORLD, &requestLower);
 
       MPI_Wait(&send_lower, MPI_STATUS_IGNORE);
       MPI_Wait(&requestLower, MPI_STATUS_IGNORE);
@@ -79,12 +79,12 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon,
     else if (rank == (numProc - 1)) {
       MPI_Request send_upper;
       std::vector<double> send_vec_up = phi[t0].get_row(rank * numRows);
-      MPI_Isend(send_vec_up.data(), numCols, MPI_DOUBLE, neighborUpper, 0,
-                MPI_COMM_WORLD, &send_upper);
+      MPI_Isend(send_vec_up.data(), numCols, MPI_DOUBLE, neighborUpper,
+                indexRowGlobalStart, MPI_COMM_WORLD, &send_upper);
 
       MPI_Request request_upper;
-      MPI_Irecv(haloUpper.data(), numCols, MPI_DOUBLE, neighborUpper, 0,
-                MPI_COMM_WORLD, &request_upper);
+      MPI_Irecv(haloUpper.data(), numCols, MPI_DOUBLE, neighborUpper,
+                rowHaloUpperIndex, MPI_COMM_WORLD, &request_upper);
 
       MPI_Wait(&send_upper, MPI_STATUS_IGNORE);
       MPI_Wait(&request_upper, MPI_STATUS_IGNORE);
@@ -106,20 +106,20 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon,
       MPI_Request send_lower;
 
       std::vector<double> send_vec_up = phi[t0].get_row(rank * numRows);
-      MPI_Isend(send_vec_up.data(), numCols, MPI_DOUBLE, neighborUpper, 0,
-                MPI_COMM_WORLD, &send_upper);
+      MPI_Isend(send_vec_up.data(), numCols, MPI_DOUBLE, neighborUpper,
+                indexRowGlobalStart, MPI_COMM_WORLD, &send_upper);
 
       std::vector<double> send_vec_low =
           phi[t0].get_row(rank * numRows + numRows);
-      MPI_Isend(send_vec_low.data(), numCols, MPI_DOUBLE, neighborLower, 0,
-                MPI_COMM_WORLD, &send_lower);
+      MPI_Isend(send_vec_low.data(), numCols, MPI_DOUBLE, neighborLower,
+                indexRowGlobalEnd, MPI_COMM_WORLD, &send_lower);
 
       MPI_Request request_upper;
       MPI_Request request_lower;
-      MPI_Irecv(haloUpper.data(), numCols, MPI_DOUBLE, neighborUpper, 0,
-                MPI_COMM_WORLD, &request_upper);
-      MPI_Irecv(haloLower.data(), numCols, MPI_DOUBLE, neighborLower, 0,
-                MPI_COMM_WORLD, &request_lower);
+      MPI_Irecv(haloUpper.data(), numCols, MPI_DOUBLE, neighborUpper,
+                rowHaloUpperIndex, MPI_COMM_WORLD, &request_upper);
+      MPI_Irecv(haloLower.data(), numCols, MPI_DOUBLE, neighborLower,
+                rowHaloLowerIndex, MPI_COMM_WORLD, &request_lower);
 
       MPI_Wait(&send_upper, MPI_STATUS_IGNORE);
       MPI_Wait(&send_lower, MPI_STATUS_IGNORE);
