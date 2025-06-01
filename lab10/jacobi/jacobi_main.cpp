@@ -150,7 +150,7 @@ int main(int argc, char *argv[]) {
   // Set the Jacobi parameters
   const int n = 9 * 64;
   const double eps = 1e-7;
-  const int maxNumIter = 1000;
+  const int maxNumIter = 100;
 
   // Run the serial and parallel versions
   // Result is saved to file.
