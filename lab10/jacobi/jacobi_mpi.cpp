@@ -53,7 +53,7 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon,
     if (rank == 0) {
       MPI_Request send_lower;
       std::vector<double> send_vec_low = phi[t0].get_row(numRows - 1);
-      MPI_Isend(&send_vec_low, numCols, MPI_DOUBLE, neighborLower, 0,
+      MPI_Isend(send_vec_low.data(), numCols, MPI_DOUBLE, neighborLower, 0,
                 MPI_COMM_WORLD, &send_lower);
 
       MPI_Request requestLower;
@@ -79,7 +79,7 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon,
     else if (rank == (numProc - 1)) {
       MPI_Request send_upper;
       std::vector<double> send_vec_up = phi[t0].get_row(rank * numRows);
-      MPI_Isend(&send_vec_up, numCols, MPI_DOUBLE, neighborUpper, 0,
+      MPI_Isend(send_vec_up.data(), numCols, MPI_DOUBLE, neighborUpper, 0,
                 MPI_COMM_WORLD, &send_upper);
 
       MPI_Request request_upper;
@@ -106,12 +106,12 @@ Jacobi::Result JacobiMPI::run(const Matrix &init, double epsilon,
       MPI_Request send_lower;
 
       std::vector<double> send_vec_up = phi[t0].get_row(rank * numRows);
-      MPI_Isend(&send_vec_up, numCols, MPI_DOUBLE, neighborUpper, 0,
+      MPI_Isend(send_vec_up.data()), numCols, MPI_DOUBLE, neighborUpper, 0,
                 MPI_COMM_WORLD, &send_upper);
 
       std::vector<double> send_vec_low =
           phi[t0].get_row(rank * numRows + numRows);
-      MPI_Isend(&send_vec_low, numCols, MPI_DOUBLE, neighborLower, 0,
+      MPI_Isend(send_vec_low.data(), numCols, MPI_DOUBLE, neighborLower, 0,
                 MPI_COMM_WORLD, &send_lower);
 
       MPI_Request request_upper;
