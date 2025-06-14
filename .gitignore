@@ -1,2 +1,7 @@
 *.out*
 execs
+
+game_of_life_test
+game_of_life
+
+lab11/output
