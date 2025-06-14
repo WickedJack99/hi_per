@@ -45,4 +45,13 @@ TEST(test_reproduction) {
   check(end(1, 1), 1);
 }
 
+TEST(test_survive_edge) {
+  Matrix start = Matrix::zeros(10);
+  start(0, 0) = 1;
+  start(9, 0) = 1;
+  start(0, 9) = 1;
+  Matrix end = init_step(start);
+  check(end(0, 0), 1);
+}
+
 int main() { return 0; }
