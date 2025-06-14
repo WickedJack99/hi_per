@@ -77,10 +77,10 @@
  *    // test code
  * }
  */
-#define TEST(name)              \
-  struct _TestClass##name {     \
-    _TestClass##name();         \
-  } _TestClass##name##Instance; \
+#define TEST(name)                                                             \
+  struct _TestClass##name {                                                    \
+    _TestClass##name();                                                        \
+  } _TestClass##name##Instance;                                                \
   _TestClass##name::_TestClass##name()
 
 // Use a namespace to hide implementation details
@@ -94,17 +94,16 @@ namespace Test::Detail {
  * the function is not generated.
  */
 template <typename T>
-std::ostream& operator<<(
-    typename std::enable_if<std::is_enum<T>::value, std::ostream>::type& stream,
-    const T& e) {
+std::ostream &operator<<(
+    typename std::enable_if<std::is_enum<T>::value, std::ostream>::type &stream,
+    const T &e) {
   return stream << static_cast<typename std::underlying_type<T>::type>(e);
 }
 
 /**
  * Convert anything to a string.
  */
-template <typename T>
-std::string toString(const T& t) {
+template <typename T> std::string toString(const T &t) {
   std::ostringstream ss;
   ss << std::setprecision(10);
   ss << t;
@@ -114,16 +113,14 @@ std::string toString(const T& t) {
 /**
  * Convert bools to string "true" or "false" instead of 0 and 1
  */
-template <>
-inline std::string toString<bool>(const bool& b) {
+template <> inline std::string toString<bool>(const bool &b) {
   return b ? "\"true\"" : "\"false\"";
 }
 
 /**
  * Comparison function for different types
  */
-template <typename T>
-bool isEqual(const T& t1, const T& t2) {
+template <typename T> bool isEqual(const T &t1, const T &t2) {
   return t1 == t2;
 }
 
@@ -131,8 +128,8 @@ bool isEqual(const T& t1, const T& t2) {
  * Double values are equal if they differ no more than 1e-8
  */
 template <>
-inline bool isEqual<double>(const double& expectedValue,
-                            const double& actualValue) {
+inline bool isEqual<double>(const double &expectedValue,
+                            const double &actualValue) {
   const double epsilon = 1e-4;
   const double distance = fabs(actualValue - expectedValue);
   return (distance < epsilon);
@@ -142,8 +139,8 @@ inline bool isEqual<double>(const double& expectedValue,
  * Float values are equal if they differ no more than 1e-4
  */
 template <>
-inline bool isEqual<float>(const float& expectedValue,
-                           const float& actualValue) {
+inline bool isEqual<float>(const float &expectedValue,
+                           const float &actualValue) {
   const double epsilon = 1e-4;
   const double distance = fabs(actualValue - expectedValue);
   return (distance < epsilon);
@@ -157,11 +154,11 @@ inline bool isEqual<float>(const float& expectedValue,
  * the result of each test on the command line.
  */
 class Test {
- public:
+public:
   /**
    * Test class is a Singleton
    */
-  static Test& instance() {
+  static Test &instance() {
     static Test test;
     return test;
   }
@@ -171,7 +168,7 @@ class Test {
    * result.
    */
   template <typename T>
-  bool check(const T& expectedValue, const T& actualValue) {
+  bool check(const T &expectedValue, const T &actualValue) {
     bool testResult = isEqual(expectedValue, actualValue);
     if (testResult == true) {
       registerPassingTest();
@@ -193,7 +190,7 @@ class Test {
     return testResult;
   }
 
- private:
+private:
   /**
    * Print a summary of all tests at the end of program execution.
    *
@@ -225,9 +222,8 @@ class Test {
   std::atomic<int> numFailedTests_ = 0;
 };
 
-template <typename T>
-class InstanceCounterHelper {
- public:
+template <typename T> class InstanceCounterHelper {
+public:
   ~InstanceCounterHelper() {
     std::cout << "The remaining number of objects of type " << typeid(T).name()
               << " at the end of the program is " << count;
@@ -244,12 +240,12 @@ class InstanceCounterHelper {
 
   void decrement() { count--; }
 
- private:
+private:
   std::atomic<int> count = 0;
   std::atomic<int> total = 0;
 };
 
-}  // namespace Test::Detail
+} // namespace Test::Detail
 
 /**
  * Count the instances of a class T.
@@ -257,18 +253,17 @@ class InstanceCounterHelper {
  * To use it, inherit T from InstanceCounter<T>, e.g.
  * class MyClass : InstanceCounter<MyClass>
  */
-template <typename T>
-class InstanceCounter {
- public:
+template <typename T> class InstanceCounter {
+public:
   InstanceCounter() { counter().increment(); }
 
-  InstanceCounter(const InstanceCounter&) { counter().increment(); }
+  InstanceCounter(const InstanceCounter &) { counter().increment(); }
 
-  InstanceCounter(const InstanceCounter&&) { counter().increment(); }
+  InstanceCounter(const InstanceCounter &&) { counter().increment(); }
 
   virtual ~InstanceCounter() { counter().decrement(); }
 
-  Test::Detail::InstanceCounterHelper<T>& counter() {
+  Test::Detail::InstanceCounterHelper<T> &counter() {
     static Test::Detail::InstanceCounterHelper<T> c;
     return c;
   }
@@ -280,16 +275,16 @@ class InstanceCounter {
  * summary of all tests is printed.
  */
 template <typename T1, typename T2>
-void check(const T1& actualValue, const T2& expectedValue) {
-  const T1& expectedValueCasted{
-      expectedValue};  // allows conversion in general, but avoids narrowing
-                       // conversion
+void check(const T1 &actualValue, const T2 &expectedValue) {
+  const T1 &expectedValueCasted{
+      expectedValue}; // allows conversion in general, but avoids narrowing
+                      // conversion
   Test::Detail::Test::instance().check(expectedValueCasted, actualValue);
 }
 
 // allow conversion from int to double explicitely
 template <>
-inline void check(const double& actualValue, const int& expectedValue) {
+inline void check(const double &actualValue, const int &expectedValue) {
   Test::Detail::Test::instance().check(static_cast<double>(expectedValue),
                                        actualValue);
 }
@@ -299,11 +294,9 @@ inline void check(const double& actualValue, const int& expectedValue) {
  * Result is printed on the command line and at the end of the program, a
  * summary of all tests is printed.
  */
-inline void check(bool a) {
-  Test::Detail::Test::instance().check(true, a);
-}
+inline void check(bool a) { Test::Detail::Test::instance().check(true, a); }
 
-#endif  // VERY_SIMPLE_TEST_H
+#endif // VERY_SIMPLE_TEST_H
 
 /**
  * V1.0: Creation of framework
