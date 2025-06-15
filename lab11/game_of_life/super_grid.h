@@ -5,6 +5,29 @@
 #include <cstdio>
 #include <mpi.h>
 
+class Neighbors {
+  public:
+    int top_left, top, top_right;
+    int left, right;
+    int bottom_left, bottom, bottom_right;
+
+    bool operator==(const Neighbors& other) const {
+      return top_left     == other.top_left &&
+            top          == other.top &&
+            top_right    == other.top_right &&
+            left         == other.left &&
+            right        == other.right &&
+            bottom_left  == other.bottom_left &&
+            bottom       == other.bottom &&
+            bottom_right == other.bottom_right;
+    }
+
+  Neighbors()
+      : top_left(-1), top(-1), top_right(-1),
+        left(-1), right(-1),
+        bottom_left(-1), bottom(-1), bottom_right(-1) {}
+};
+
 class SuperGrid {
 public:
   static SuperGrid zeros(int rows, int cols, MPI_Comm communicator);
@@ -19,6 +42,7 @@ public:
   int rows() const;
   int cols() const;
 
+  Neighbors get_neighbors();
   void find_neighbors();
 
   MPI_Comm &get_communicator();
@@ -27,11 +51,13 @@ public:
 private:
   Matrix grid_;
   MPI_Comm comm_;
+  Neighbors neighbors_;
 };
 
 inline SuperGrid::SuperGrid(const Matrix &other)
     : grid_(
-          Matrix::zeros(other.rows() + 2, other.cols() + 2)) // initialize grid_
+          Matrix::zeros(other.rows() + 2, other.cols() + 2)),
+          neighbors_(Neighbors()) // initialize grid_
 {
   for (int i = 0; i < other.rows(); i++) {
     for (int j = 0; j < other.cols(); j++) {
@@ -77,12 +103,37 @@ inline void SuperGrid::set_communicator(MPI_Comm communicator) {
 }
 
 inline void SuperGrid::find_neighbors() {
-  int left, right;
-  int top, bottom;
-  MPI_Cart_shift(this->comm_, 0, 1, &left, &right);
-  MPI_Cart_shift(this->comm_, 0, 1, &top, &bottom);
+  if (this->comm_ == MPI_COMM_NULL) {
+    std::cerr << "Communicator is NULL!\n";
+  }
+  int rank;
+  MPI_Comm_rank(this->comm_, &rank);
+  int coords[2];
+  MPI_Cart_coords(this->comm_, rank, 2, coords);
+  for (int dx = -1; dx <= 1; ++dx) {
+    for (int dy = -1; dy <= 1; ++dy) {
+      if (dx == 0 && dy == 0) continue; // skip self
 
-  printf("left: %d, right: %d \ntop: %d, bottom: %d", left, right, top, bottom);
+      int neighbor_coords[2] = { coords[0] + dx, coords[1] + dy };
+      int neighbor_rank;
+
+      int err = MPI_Cart_rank(this->comm_, neighbor_coords, &neighbor_rank);
+      if (err != MPI_SUCCESS) continue; // skip invalid neighbors (if non-periodic)
+
+      if (dx == -1 && dy == -1) neighbors_.top_left = neighbor_rank;
+      if (dx == -1 && dy ==  0) neighbors_.top      = neighbor_rank;
+      if (dx == -1 && dy ==  1) neighbors_.top_right = neighbor_rank;
+      if (dx ==  0 && dy == -1) neighbors_.left     = neighbor_rank;
+      if (dx ==  0 && dy ==  1) neighbors_.right    = neighbor_rank;
+      if (dx ==  1 && dy == -1) neighbors_.bottom_left = neighbor_rank;
+      if (dx ==  1 && dy ==  0) neighbors_.bottom   = neighbor_rank;
+      if (dx ==  1 && dy ==  1) neighbors_.bottom_right = neighbor_rank;
+    }
+  }
+}
+
+inline Neighbors SuperGrid::get_neighbors() {
+  return this->neighbors_;
 }
 
 #endif // SUPER_GRID_H
