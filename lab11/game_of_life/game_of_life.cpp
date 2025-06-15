@@ -4,7 +4,7 @@ GameOfLife::GameOfLife(const SuperGrid &grid, MPIGridSize mpiProcs)
     : grid_(grid), mpiProcs_(mpiProcs) {}
 
 void GameOfLife::step() {
-  SuperGrid next = SuperGrid::zeros(grid_.rows(), grid_.cols());
+  SuperGrid next = SuperGrid::zeros(grid_.rows(), grid_.cols(), grid_.get_communicator());
   const int rows = grid_.rows();
   const int cols = grid_.cols();
   for (int i = 0; i < rows; ++i) {

@@ -4,6 +4,7 @@
 #include <memory>
 #include <mpi.h>
 #include <string>
+#include <array>
 
 #include "common.h"
 #include "game_of_life.h"
@@ -15,7 +16,8 @@
 /**
  * Main function to run the simulation of the game of life
  */
-void gameOfLife(MPIGridSize mpiProcs) {
+void gameOfLife(MPIGridSize mpiProcs)
+{
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
@@ -34,7 +36,8 @@ void gameOfLife(MPIGridSize mpiProcs) {
 
   print(game);
 
-  for (int i = 0; i < 50; ++i) {
+  for (int i = 0; i < 50; ++i)
+  {
     game.step();
   }
   if (rank == 0)
@@ -49,9 +52,11 @@ void gameOfLife(MPIGridSize mpiProcs) {
  * Initializes MPI, checks command line arguments, and starts the game of life
  * simulation.
  */
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
   MPI_Init(&argc, &argv);
-  if (argc != 3) {
+  if (argc != 3)
+  {
     std::cout << "Specify number of processes in x and y as arguments\n";
     std::cout << "jacobi <np0> <np1>\n";
     return 1;
@@ -63,15 +68,19 @@ int main(int argc, char *argv[]) {
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &numProc);
-  if (np0 * np1 != numProc) {
+  if (np0 * np1 != numProc)
+  {
     std::cout << "Error: nproc != np0 x np1 (" << numProc << "!= " << np0 << "x"
               << np1 << ")\n";
     return 2;
   }
 
-  try {
+  try
+  {
     gameOfLife({np0, np1});
-  } catch (const std::exception &e) {
+  }
+  catch (const std::exception &e)
+  {
     std::cerr << "Error: " << e.what() << std::endl;
     MPI_Abort(MPI_COMM_WORLD, 1);
     return 1;
