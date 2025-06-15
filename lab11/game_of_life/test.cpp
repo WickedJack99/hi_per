@@ -16,9 +16,19 @@ TEST(test_underpopulation) {
   check(end(0, 0), 0);
 }
 
-TEST(test_survive) {
+TEST(test_survive_2) {
   Matrix start = Matrix::zeros(10);
   start(0, 0) = 1;
+  start(0, 1) = 1;
+  start(1, 0) = 1;
+  Matrix end = init_step(start);
+  check(end(0, 0), 1);
+}
+
+TEST(test_survive_3) {
+  Matrix start = Matrix::zeros(10);
+  start(0, 0) = 1;
+  start(1, 1) = 1;
   start(0, 1) = 1;
   start(1, 0) = 1;
   Matrix end = init_step(start);
