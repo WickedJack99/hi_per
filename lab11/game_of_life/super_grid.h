@@ -5,7 +5,7 @@
 
 class SuperGrid {
 public:
-  static SuperGrid zeros(int rows, int cols);
+  static SuperGrid zeros(int rows, int cols,  MPI_Comm communicator);
 
   SuperGrid(const Matrix &other);
 
@@ -70,7 +70,7 @@ inline MPI_Comm& SuperGrid::get_communicator() {
   return this->comm_;
 }
 
-void set_communicator(MPI_Comm& communicator)
+void SuperGrid::set_communicator(MPI_Comm& communicator)
 {
   this->comm_ = communicator;
 }
