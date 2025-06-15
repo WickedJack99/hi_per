@@ -1,15 +1,15 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <memory>
-#include <fstream>
-#include <filesystem>
 
-#include "game_of_life.h"
-#include "matrix_io.h"
-#include "matrix.h"
 #include "common.h"
+#include "game_of_life.h"
+#include "matrix.h"
+#include "matrix_io.h"
 
 /**
  * Clears the contents of a folder or create it if it does not exist.
@@ -17,7 +17,7 @@
  * all folder contents are removed.
  * If the folder does not exist, it is created.
  */
-void clearOrCreateFolder(const std::string& foldername);
+void clearOrCreateFolder(const std::string &foldername);
 
 /**
  * Stores the animation of the Game of Life in a bunch of text files.
@@ -25,12 +25,12 @@ void clearOrCreateFolder(const std::string& foldername);
  * where <n> is the step number.
  * The files are stored in the specified folder.
  */
-void storeAnimation(const std::string& foldername,
-                    const Matrix& initstate,
-                    int numSteps,
-                    MPIGridSize mpiProcs);
+void storeAnimation(const std::string &foldername, const Matrix &initstate,
+                    int numSteps, MPIGridSize mpiProcs);
 
 /** Print the current grid of the game on the console */
-void print(const GameOfLife& game);
+void print(const GameOfLife &game);
 
-#endif  // UTILS_H
+void print(Matrix &matrix);
+
+#endif // UTILS_H

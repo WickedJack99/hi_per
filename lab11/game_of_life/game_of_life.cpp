@@ -1,11 +1,10 @@
-
 #include "game_of_life.h"
 
-GameOfLife::GameOfLife(const Matrix& grid, MPIGridSize mpiProcs)
+GameOfLife::GameOfLife(const SuperGrid &grid, MPIGridSize mpiProcs)
     : grid_(grid), mpiProcs_(mpiProcs) {}
 
 void GameOfLife::step() {
-  Matrix next = Matrix::zeros(grid_.rows(), grid_.cols());
+  SuperGrid next = SuperGrid::zeros(grid_.rows(), grid_.cols());
   const int rows = grid_.rows();
   const int cols = grid_.cols();
   for (int i = 0; i < rows; ++i) {
@@ -25,9 +24,9 @@ int GameOfLife::countLiveNeighbors(int row, int col) const {
   for (int i = -1; i <= 1; ++i) {
     for (int j = -1; j <= 1; ++j) {
       if (i == 0 && j == 0)
-        continue;                             // Skip the cell itself
-      int nextRow = (row + i + rows) % rows;  // Wrap around
-      int nextCol = (col + j + cols) % cols;  // Wrap around
+        continue;                            // Skip the cell itself
+      int nextRow = (row + i + rows) % rows; // Wrap around
+      int nextCol = (col + j + cols) % cols; // Wrap around
       if (grid_(nextRow, nextCol) == 1) {
         count++;
       }
@@ -47,10 +46,6 @@ int GameOfLife::updateCell(int currentState, int numLiveNeighbors) const {
   }
 }
 
-Matrix GameOfLife::getGrid() const {
-  return grid_;
-}
+Matrix GameOfLife::getGrid() const { return grid_.get_matrix(); }
 
-MPIGridSize GameOfLife::mpiProcs() const {
-  return mpiProcs_;
-}
+MPIGridSize GameOfLife::mpiProcs() const { return mpiProcs_; }

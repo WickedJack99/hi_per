@@ -23,6 +23,10 @@ test:
 	mpicxx $(SOURCE_FILES) test.cpp -g -o game_of_life_test ${COMPILER_FLAGS}
 	mpirun -np 16 --oversubscribe ./game_of_life_test
 
+tests:
+	mpicxx $(SOURCE_FILES) test.cpp -g -o game_of_life_test ${COMPILER_FLAGS}
+	mpirun -np 1 --oversubscribe ./game_of_life_test
+
 runserial:
 	mpirun -np 1 ./$(PROGRAM_NAME) 1 1
 

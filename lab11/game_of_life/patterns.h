@@ -1,11 +1,12 @@
 #ifndef PATTERNS_H
 #define PATTERNS_H
 
-#include <memory>
-#include <array>
-#include <mpi.h>
-#include "matrix.h"
 #include "common.h"
+#include "matrix.h"
+#include "super_grid.h"
+#include <array>
+#include <memory>
+#include <mpi.h>
 
 /**
  * Class to create some patterns for the Game of Life.
@@ -20,10 +21,10 @@
  * Pattern pattern(20, 40, comm).glider(10, 17).getGrid();
  */
 class Pattern {
- public:
+public:
   Pattern(int rows, int cols, MPIGridSize mpiProcs);
 
-  Matrix getGrid() const;
+  SuperGrid getGrid() const;
 
   Pattern setCell(int globalRow, int globalCol);
 
@@ -33,7 +34,7 @@ class Pattern {
 
   Pattern octagon(int row, int col);
 
- private:
+private:
   int numRowsLocal() const;
   int numRowsTotal() const;
   int numColsLocal() const;
@@ -43,9 +44,9 @@ class Pattern {
   int np1() const;
 
   MPIGridSize mpiProcs_;
-  Matrix grid_;
+  SuperGrid grid_;
 
-  MPI_Comm comm_; 
+  MPI_Comm comm_;
 };
 
-#endif  // PATTERNS_H
+#endif // PATTERNS_H

@@ -1,7 +1,7 @@
 #include "patterns.h"
 
 Pattern::Pattern(int rows, int cols, MPIGridSize mpiProcs)
-    : mpiProcs_(mpiProcs), grid_(Matrix::zeros(rows / np0(), cols / np1())) {
+    : mpiProcs_(mpiProcs), grid_(SuperGrid::zeros(rows / np0(), cols / np1())) {
   if (rows <= 0 || cols <= 0) {
     throw std::invalid_argument("Rows and columns must be positive");
   }
@@ -87,7 +87,7 @@ Pattern Pattern::octagon(int row, int col) {
   return *this;
 }
 
-Matrix Pattern::getGrid() const { return grid_; }
+SuperGrid Pattern::getGrid() const { return grid_; }
 
 Pattern Pattern::setCell(int globalRow, int globalCol) {
   if (globalRow < 0 || globalCol < 0 || globalRow >= numRowsTotal() ||

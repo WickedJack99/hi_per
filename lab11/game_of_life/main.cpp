@@ -1,15 +1,16 @@
-#include <iostream>
+#include <filesystem>
 #include <fstream>
+#include <iostream>
 #include <memory>
 #include <mpi.h>
 #include <string>
-#include <filesystem>
 
-#include "game_of_life.h"
-#include "patterns.h"
-#include "matrix_io.h"
-#include "utils.h"
 #include "common.h"
+#include "game_of_life.h"
+#include "matrix_io.h"
+#include "patterns.h"
+#include "super_grid.h"
+#include "utils.h"
 
 /**
  * Main function to run the simulation of the game of life
@@ -19,12 +20,12 @@ void gameOfLife(MPIGridSize mpiProcs) {
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
   // Create a grid that results in some interesting patterns
-  const Matrix grid = Pattern(20, 40, mpiProcs)
-                          .glider(10, 17)
-                          .beeHive(7, 10)
-                          .octagon(6, 27)
-                          .octagon(12, 0)
-                          .getGrid();
+  const SuperGrid grid = Pattern(20, 40, mpiProcs)
+                             .glider(10, 17)
+                             .beeHive(7, 10)
+                             .octagon(6, 27)
+                             .octagon(12, 0)
+                             .getGrid();
 
   GameOfLife game(grid, mpiProcs);
 
@@ -40,7 +41,7 @@ void gameOfLife(MPIGridSize mpiProcs) {
     std::cout << "Final state" << std::endl;
   print(game);
 
-  storeAnimation("output", grid, 150, mpiProcs);
+  storeAnimation("output", grid.get_matrix(), 150, mpiProcs);
 }
 
 /**
@@ -48,7 +49,7 @@ void gameOfLife(MPIGridSize mpiProcs) {
  * Initializes MPI, checks command line arguments, and starts the game of life
  * simulation.
  */
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
   MPI_Init(&argc, &argv);
   if (argc != 3) {
     std::cout << "Specify number of processes in x and y as arguments\n";
@@ -70,7 +71,7 @@ int main(int argc, char* argv[]) {
 
   try {
     gameOfLife({np0, np1});
-  } catch (const std::exception& e) {
+  } catch (const std::exception &e) {
     std::cerr << "Error: " << e.what() << std::endl;
     MPI_Abort(MPI_COMM_WORLD, 1);
     return 1;

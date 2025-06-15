@@ -1,6 +1,7 @@
 #include "utils.h"
+#include "matrix.h"
 
-void clearOrCreateFolder(const std::string& foldername) {
+void clearOrCreateFolder(const std::string &foldername) {
   namespace fs = std::filesystem;
   fs::path folder(foldername);
   if (fs::exists(folder)) {
@@ -21,7 +22,7 @@ void clearOrCreateFolder(const std::string& foldername) {
 
       std::cout << "Clearing folder '" << foldername << "'...\n";
       // Clear the folder
-      for (const auto& entry : fs::directory_iterator(folder)) {
+      for (const auto &entry : fs::directory_iterator(folder)) {
         if (fs::is_directory(entry)) {
           fs::remove_all(entry);
         } else if (fs::is_regular_file(entry)) {
@@ -35,10 +36,8 @@ void clearOrCreateFolder(const std::string& foldername) {
   }
 }
 
-void storeAnimation(const std::string& foldername,
-                    const Matrix& initstate,
-                    int numSteps,
-                    MPIGridSize mpiProcs) {
+void storeAnimation(const std::string &foldername, const Matrix &initstate,
+                    int numSteps, MPIGridSize mpiProcs) {
   GameOfLife game(initstate, mpiProcs);
 
   MatrixIO io(mpiProcs);
@@ -67,7 +66,7 @@ void storeAnimation(const std::string& foldername,
   }
 }
 
-void print(const GameOfLife& game) {
+void print(const GameOfLife &game) {
   MatrixIO io(game.mpiProcs());
   Matrix grid = io.gatherMatrixOnRoot(game.getGrid());
 
@@ -80,5 +79,14 @@ void print(const GameOfLife& game) {
       }
       std::cout << std::endl;
     }
+  }
+}
+
+void print(Matrix &grid) {
+  for (int i = 0; i < grid.rows(); ++i) {
+    for (int j = 0; j < grid.cols(); ++j) {
+      std::cout << ((grid(i, j) == 1) ? "X " : ". ");
+    }
+    std::cout << std::endl;
   }
 }

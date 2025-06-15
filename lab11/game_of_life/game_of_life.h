@@ -1,19 +1,20 @@
 #ifndef GAME_OF_LIFE_H
 #define GAME_OF_LIFE_H
 
-#include <iostream>
-#include <vector>
-#include <fstream>
-#include <memory>
 #include <array>
+#include <fstream>
+#include <iostream>
+#include <memory>
 #include <mpi.h>
+#include <vector>
 
 #include "common.h"
 #include "matrix.h"
+#include "super_grid.h"
 
 class GameOfLife {
- public:
-  GameOfLife(const Matrix& grid, MPIGridSize mpiProcs);
+public:
+  GameOfLife(const SuperGrid &grid, MPIGridSize mpiProcs);
 
   void step();
 
@@ -21,12 +22,12 @@ class GameOfLife {
 
   MPIGridSize mpiProcs() const;
 
- private:
+private:
   int countLiveNeighbors(int row, int col) const;
 
   int updateCell(int currentState, int numLiveNeighbors) const;
 
-  Matrix grid_;
+  SuperGrid grid_;
   MPIGridSize mpiProcs_;
   int myRank_ = 0;
 
@@ -35,4 +36,4 @@ class GameOfLife {
   friend class GameOfLifeTest;
 };
 
-#endif  // GAME_OF_LIFE_H
+#endif // GAME_OF_LIFE_H

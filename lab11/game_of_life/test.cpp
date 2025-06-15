@@ -2,6 +2,7 @@
 #include "common.h"
 #include "game_of_life.h"
 #include "matrix.h"
+#include "utils.h"
 
 Matrix init_step(Matrix start) {
   GameOfLife gol = GameOfLife(start, MPIGridSize());
@@ -21,7 +22,10 @@ TEST(test_survive_2) {
   start(0, 0) = 1;
   start(0, 1) = 1;
   start(1, 0) = 1;
+
+  print(start);
   Matrix end = init_step(start);
+  print(end);
   check(end(0, 0), 1);
 }
 
