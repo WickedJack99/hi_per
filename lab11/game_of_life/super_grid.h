@@ -2,6 +2,7 @@
 #define SUPER_GRID_H
 
 #include "matrix.h"
+#include <cstdio>
 #include <mpi.h>
 
 class SuperGrid {
@@ -73,6 +74,15 @@ inline MPI_Comm &SuperGrid::get_communicator() { return this->comm_; }
 
 inline void SuperGrid::set_communicator(MPI_Comm communicator) {
   this->comm_ = communicator;
+}
+
+inline void SuperGrid::find_neighbors() {
+  int left, right;
+  int top, bottom;
+  MPI_Cart_shift(this->comm_, 0, 1, &left, &right);
+  MPI_Cart_shift(this->comm_, 0, 1, &top, &bottom);
+
+  printf("left: %d, right: %d \ntop: %d, bottom: %d", left, right, top, bottom);
 }
 
 #endif // SUPER_GRID_H

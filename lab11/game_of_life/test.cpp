@@ -72,4 +72,21 @@ TEST(test_super_grid) {
   check(su_grid.cols(), 10);
 }
 
-int main() { return 0; }
+TEST(test_find_neighbors) {
+  int a;
+  char *b[10];
+  MPI_Init(&a, nullptr);
+
+  MPI_Comm comm_;
+  MPIGridSize mpiProcs = {0, 0};
+
+  std::array<int, 2> periods = {1, 1};
+  MPI_Cart_create(MPI_COMM_WORLD, 2, mpiProcs.data(), periods.data(), true,
+                  &comm_);
+
+  SuperGrid su_grid = SuperGrid::zeros(10, 10, nullptr);
+  su_grid.find_neighbors();
+  MPI_Finalize();
+}
+
+int main(int argc, char *argv[]) { return 0; }
