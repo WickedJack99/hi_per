@@ -32,5 +32,6 @@ void storeAnimation(const std::string &foldername, const Matrix &initstate,
 void print(const GameOfLife &game);
 
 void print(Matrix &matrix);
+void print(const Matrix &matrix);
 
 #endif // UTILS_H

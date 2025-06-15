@@ -90,3 +90,12 @@ void print(Matrix &grid) {
     std::cout << std::endl;
   }
 }
+
+void print(const Matrix &grid) {
+  for (int i = 0; i < grid.rows(); ++i) {
+    for (int j = 0; j < grid.cols(); ++j) {
+      std::cout << ((grid(i, j) == 1) ? "X " : ". ");
+    }
+    std::cout << std::endl;
+  }
+}
