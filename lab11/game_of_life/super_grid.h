@@ -2,6 +2,7 @@
 #define SUPER_GRID_H
 
 #include "matrix.h"
+#include <mpi.h>
 
 class SuperGrid {
 public:

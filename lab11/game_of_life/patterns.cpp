@@ -1,7 +1,7 @@
 #include "patterns.h"
 
 Pattern::Pattern(int rows, int cols, MPIGridSize mpiProcs)
-    : mpiProcs_(mpiProcs), grid_(SuperGrid::zeros(rows / np0(), cols / np1())) {
+    : mpiProcs_(mpiProcs), grid_(SuperGrid::zeros(rows / np0(), cols / np1(), nullptr)) {
   if (rows <= 0 || cols <= 0) {
     throw std::invalid_argument("Rows and columns must be positive");
   }
@@ -19,7 +19,7 @@ Pattern::Pattern(int rows, int cols, MPIGridSize mpiProcs)
   std::array<int, 2> periods = {1, 1};
   MPI_Cart_create(MPI_COMM_WORLD, 2, mpiProcs.data(), periods.data(), true,
                   &comm_);
-  grid_.set_communicator(comm_);
+  grid_.set_communicator(&comm_);
 }
 
 int Pattern::np0() const { return mpiProcs_[0]; }
