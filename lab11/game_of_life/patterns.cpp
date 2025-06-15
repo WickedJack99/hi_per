@@ -1,8 +1,7 @@
 #include "patterns.h"
 
 Pattern::Pattern(int rows, int cols, MPIGridSize mpiProcs)
-    : mpiProcs_(mpiProcs),
-      grid_(Matrix::zeros(rows / np0(), cols / np1())) {
+    : mpiProcs_(mpiProcs), grid_(Matrix::zeros(rows / np0(), cols / np1())) {
   if (rows <= 0 || cols <= 0) {
     throw std::invalid_argument("Rows and columns must be positive");
   }
@@ -22,29 +21,17 @@ Pattern::Pattern(int rows, int cols, MPIGridSize mpiProcs)
                   &comm_);
 }
 
-int Pattern::np0() const {
-  return mpiProcs_[0];
-}
+int Pattern::np0() const { return mpiProcs_[0]; }
 
-int Pattern::np1() const {
-  return mpiProcs_[1];
-}
+int Pattern::np1() const { return mpiProcs_[1]; }
 
-int Pattern::numRowsLocal() const {
-  return grid_.rows();
-}
+int Pattern::numRowsLocal() const { return grid_.rows(); }
 
-int Pattern::numRowsTotal() const {
-  return grid_.rows() * np0();
-}
+int Pattern::numRowsTotal() const { return grid_.rows() * np0(); }
 
-int Pattern::numColsLocal() const {
-  return grid_.cols();
-}
+int Pattern::numColsLocal() const { return grid_.cols(); }
 
-int Pattern::numColsTotal() const {
-  return grid_.cols() * np1();
-}
+int Pattern::numColsTotal() const { return grid_.cols() * np1(); }
 
 Pattern Pattern::beeHive(int row, int col) {
   if (row < 0 || col < 0 || row + 3 >= numRowsTotal() ||
@@ -100,9 +87,7 @@ Pattern Pattern::octagon(int row, int col) {
   return *this;
 }
 
-Matrix Pattern::getGrid() const {
-  return grid_;
-}
+Matrix Pattern::getGrid() const { return grid_; }
 
 Pattern Pattern::setCell(int globalRow, int globalCol) {
   if (globalRow < 0 || globalCol < 0 || globalRow >= numRowsTotal() ||
@@ -119,7 +104,7 @@ Pattern Pattern::setCell(int globalRow, int globalCol) {
   int localCol = globalCol - coords[1] * numColsLocal();
   if (localRow < 0 || localCol < 0 || localRow >= grid_.rows() ||
       localCol >= grid_.cols()) {
-    return *this;  // Ignore out-of-bounds indices
+    return *this; // Ignore out-of-bounds indices
   }
   grid_(localRow, localCol) = 1;
   return *this;
