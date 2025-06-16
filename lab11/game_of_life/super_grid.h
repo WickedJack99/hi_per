@@ -79,7 +79,7 @@ public:
   void set_communicator(MPI_Comm communicator);
 
   void update();
-  std::vector<MPI_Request> receive_halos(HaloLayers halo_layers);
+  std::vector<MPI_Request> receive_halos(HaloLayers& halo_layers);
   std::vector<MPI_Request> inform_neighbors();
 
   std::vector<double> get_inner_top_row();
@@ -113,13 +113,13 @@ inline SuperGrid::SuperGrid(const Matrix &other)
       grid_(i + 1, j + 1) = other(i, j); // copy into grid_ directly
     }
   }
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank_);
 }
 
 inline SuperGrid SuperGrid::zeros(int rows, int cols, MPI_Comm communicator)
 {
   SuperGrid grid = SuperGrid(Matrix::zeros(rows, cols));
   grid.set_communicator(communicator);
+  MPI_Comm_rank(MPI_COMM_WORLD, &grid.rank_);
   grid.find_neighbors();
   return grid;
 }
@@ -167,7 +167,7 @@ inline void SuperGrid::find_neighbors()
     std::cerr << "Communicator is NULL!\n";
   }
   int rank;
-  MPI_Comm_rank(this->comm_, &rank);
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   int coords[2];
   MPI_Cart_coords(this->comm_, rank, 2, coords);
   for (int dx = -1; dx <= 1; ++dx)

@@ -1,10 +1,10 @@
 #include <mpi.h>
 #include "super_grid.h"
 
-std::vector<MPI_Request> SuperGrid::receive_halos(HaloLayers halo_layers)
+std::vector<MPI_Request> SuperGrid::receive_halos(HaloLayers& halo_layers)
 {
     std::vector<MPI_Request> recv_requests(8);
-    std::cout << halo_layers.top_halo.size() << std::endl;
+    std::cout << halo_layers.top_halo.size() << "top halo size" << std::endl;
     MPI_Irecv(halo_layers.top_halo.data(), halo_layers.top_halo.size(), MPI_DOUBLE, neighbors_.top, neighbors_.top, comm_, &recv_requests[0]);
     MPI_Irecv(halo_layers.right_halo.data(), halo_layers.right_halo.size(), MPI_DOUBLE, neighbors_.right, neighbors_.right, comm_, &recv_requests[1]);
     MPI_Irecv(halo_layers.bottom_halo.data(), halo_layers.bottom_halo.size(), MPI_DOUBLE, neighbors_.bottom, neighbors_.bottom, comm_, &recv_requests[2]);
@@ -96,7 +96,7 @@ std::vector<MPI_Request> SuperGrid::inform_neighbors()
     }
 
     std::vector<MPI_Request> send_requests(8);
-    std::cout << inner_top_row.size() << "inform_neighbors" << std::endl;
+    std::cout << inner_bottom_row.size() << "inner_bottom_row" << std::endl;
     MPI_Isend(inner_top_row.data(), inner_top_row.size(), MPI_DOUBLE, neighbors_.top, rank_, comm_, &send_requests[0]);
     MPI_Isend(inner_right_column.data(), inner_right_column.size(), MPI_DOUBLE, neighbors_.right, rank_, comm_, &send_requests[1]);
     MPI_Isend(inner_bottom_row.data(), inner_bottom_row.size(), MPI_DOUBLE, neighbors_.bottom, rank_, comm_, &send_requests[2]);
