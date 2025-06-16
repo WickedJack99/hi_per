@@ -2,7 +2,8 @@ PROGRAM_NAME = game_of_life
 SOURCE_FILES = game_of_life.cpp \
 							 utils.cpp \
 							 patterns.cpp \
-							 matrix_io.cpp 
+							 matrix_io.cpp \
+							 super_grid.cpp
 
 COMPILER_FLAGS = -std=c++17 -Wall -Wextra -Wall -Werror \
 								 -Wno-sign-compare \

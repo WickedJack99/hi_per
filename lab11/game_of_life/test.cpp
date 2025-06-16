@@ -4,6 +4,7 @@
 #include "matrix.h"
 #include "super_grid.h"
 #include "utils.h"
+#include <iostream>
 
 Matrix init_step(SuperGrid start)
 {
@@ -12,9 +13,30 @@ Matrix init_step(SuperGrid start)
   return gol.getGrid();
 }
 
+SuperGrid init()
+{
+  MPI_Comm comm_;
+  int num_procs = 16;
+  MPIGridSize mpiProcs = {4, 4};
+  MPI_Dims_create(num_procs, 2, mpiProcs.data());
+
+  std::array<int, 2> periods = {1, 1};
+  MPI_Cart_create(MPI_COMM_WORLD, 2, mpiProcs.data(), periods.data(), true,
+                  &comm_);
+
+  return SuperGrid::zeros(10, 10, comm_);
+}
+
+TEST(initialize)
+{
+  int a;
+  MPI_Init(&a, nullptr);
+  check(true, true);
+}
+
 TEST(test_underpopulation)
 {
-  SuperGrid start = SuperGrid::zeros(10, 10, nullptr);
+  SuperGrid start = init();
   start(0, 0) = 1;
   Matrix end = init_step(start);
   check(end(0, 0), 0);
@@ -22,7 +44,7 @@ TEST(test_underpopulation)
 
 TEST(test_survive_2)
 {
-  SuperGrid start = SuperGrid::zeros(10, 10, nullptr);
+  SuperGrid start = init();
   start(0, 0) = 1;
   start(0, 1) = 1;
   start(1, 0) = 1;
@@ -32,7 +54,7 @@ TEST(test_survive_2)
 
 TEST(test_survive_3)
 {
-  SuperGrid start = SuperGrid::zeros(10, 10, nullptr);
+  SuperGrid start = init();
   start(0, 0) = 1;
   start(1, 1) = 1;
   start(0, 1) = 1;
@@ -43,7 +65,7 @@ TEST(test_survive_3)
 
 TEST(test_overpopulation)
 {
-  SuperGrid start = SuperGrid::zeros(10, 10, nullptr);
+  SuperGrid start = init();
   start(1, 1) = 1;
   start(0, 1) = 1;
   start(1, 0) = 1;
@@ -55,7 +77,7 @@ TEST(test_overpopulation)
 
 TEST(test_reproduction)
 {
-  SuperGrid start = SuperGrid::zeros(10, 10, nullptr);
+  SuperGrid start = init();
   start(0, 1) = 1;
   start(1, 0) = 1;
   start(2, 1) = 1;
@@ -65,7 +87,7 @@ TEST(test_reproduction)
 
 TEST(test_survive_edge)
 {
-  SuperGrid start = SuperGrid::zeros(10, 10, nullptr);
+  SuperGrid start = init();
   start(0, 0) = 1;
   start(9, 0) = 1;
   start(0, 9) = 1;
@@ -75,31 +97,18 @@ TEST(test_survive_edge)
 
 TEST(test_super_grid)
 {
-  SuperGrid su_grid = SuperGrid::zeros(10, 10, nullptr);
+  SuperGrid su_grid = init();
   check(su_grid.rows(), 10);
   check(su_grid.cols(), 10);
 }
 
 TEST(test_find_neighbors)
 {
-  int a;
-  char *b[10];
-  MPI_Init(&a, nullptr);
-
-  MPI_Comm comm_;
-  int num_procs = 16;
-  MPIGridSize mpiProcs = {4, 4};
-  MPI_Dims_create(num_procs, 2, mpiProcs.data());
-
-  std::array<int, 2> periods = {1, 1};
-  MPI_Cart_create(MPI_COMM_WORLD, 2, mpiProcs.data(), periods.data(), true,
-                  &comm_);
-
-  SuperGrid su_grid = SuperGrid::zeros(10, 10, comm_);
+  SuperGrid su_grid = init();
   su_grid.find_neighbors();
 
   int rank;
-  MPI_Comm_rank(comm_, &rank);
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   if (rank == 0)
   {
     Neighbors neighbors = su_grid.get_neighbors();
@@ -117,4 +126,29 @@ TEST(test_find_neighbors)
   MPI_Finalize();
 }
 
-int main(int argc, char *argv[]) { return 0; }
+TEST(communication)
+{
+  SuperGrid su_grid = init();
+  int rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  if (rank == 1) {
+    su_grid(0, 0) = 1;
+    su_grid(0, 2) = 1;
+    su_grid(0, 4) = 1;
+  }
+  su_grid.update();
+  if (rank == 0) {
+    Matrix result = su_grid.get_grid();
+    check(result(11, 1), 1);
+    check(result(11, 3), 1);
+    check(result(11, 5), 1);
+  }
+}
+
+TEST(get_halo_layers)
+{
+}
+
+int main(int argc, char *argv[]) { 
+  std::cout << "main" << std::endl;
+  return 0; }
