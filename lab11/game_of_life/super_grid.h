@@ -8,10 +8,10 @@
 class HaloLayers
 {
 public:
-  std::vector<double> top_row;
-  std::vector<double> right_row;
-  std::vector<double> bottom_row;
-  std::vector<double> left_row;
+  std::vector<double> top_halo;
+  std::vector<double> right_halo;
+  std::vector<double> bottom_halo;
+  std::vector<double> left_halo;
 
   double top_right_corner;
   double bottom_right_corner;
@@ -19,10 +19,10 @@ public:
   double bottom_left_corner;
 
   HaloLayers(int row_size = 0, int col_size = 0)
-      : top_row(col_size),
-        right_row(row_size),
-        bottom_row(col_size),
-        left_row(row_size),
+      : top_halo(col_size),
+        right_halo(row_size),
+        bottom_halo(col_size),
+        left_halo(row_size),
         top_right_corner(0.0),
         bottom_right_corner(0.0),
         top_left_corner(0.0),
@@ -82,23 +82,23 @@ public:
   std::vector<MPI_Request> receive_halos(HaloLayers halo_layers);
   std::vector<MPI_Request> inform_neighbors();
 
+  std::vector<double> get_inner_top_row();
+  std::vector<double> get_inner_right_column();
+  std::vector<double> get_inner_bottom_row();
+  std::vector<double> get_inner_left_column();
+
+  double get_inner_top_right_corner();
+  double get_inner_bottom_right_corner();
+  double get_inner_top_left_corner();
+  double get_inner_bottom_left_corner();
+
+  void merge_halos(HaloLayers halo_layers);
+
 private:
   Matrix grid_;
   MPI_Comm comm_;
   Neighbors neighbors_;
   int rank_;
-
-  std::vector<double> get_top_row();
-  std::vector<double> get_right_row();
-  std::vector<double> get_bottom_row();
-  std::vector<double> get_left_row();
-
-  double get_top_right_corner();
-  double get_bottom_right_corner();
-  double get_top_left_corner();
-  double get_bottom_left_corner();
-
-  void merge_halos(HaloLayers halo_layers);
 };
 
 inline SuperGrid::SuperGrid(const Matrix &other)

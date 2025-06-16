@@ -7,7 +7,7 @@ void GameOfLife::step() {
   SuperGrid next = SuperGrid::zeros(grid_.rows(), grid_.cols(), grid_.get_communicator());
   const int rows = grid_.rows();
   const int cols = grid_.cols();
-  grid_.update();
+  //grid_.update();
   for (int i = 0; i < rows; ++i) {
     for (int j = 0; j < cols; ++j) {
       const int numLiveNeighbors = countLiveNeighbors(i, j);
