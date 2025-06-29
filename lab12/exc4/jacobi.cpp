@@ -245,9 +245,9 @@ Jacobi::Result Jacobi::run(const Matrix &init, double eps, int maxNumIter)
     while (true)
     {
 #pragma omp for reduction(max : dist) schedule(dynamic, 32)
-      for (int i = 1; i < n - 1; ++i)
+      for (int i = 1; i < numRows - 1; ++i)
       {
-        for (int j = 1; j < m - 1; ++j)
+        for (int j = 1; j < numCols - 1; ++j)
         {
           phi[t1](i, j) = 0.25 * (phi[t0](i + 1, j) + phi[t0](i - 1, j) +
                                   phi[t0](i, j + 1) + phi[t0](i, j - 1));
