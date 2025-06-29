@@ -100,7 +100,10 @@ void Jacobi::exchangeHaloLayersNodeMPIProcFirst(Matrix &phi)
     // We write our send row to shared memory row 0
 
     while (states->shmStates[0] == SharedmemState::Unread)
-    {MPI_Win_sync(win_);}
+    {
+      if (rank_ == 0)
+        std::cout << "102" << std::endl;
+      MPI_Win_sync(win_);}
     
     for (int j = 0; j < sendSize; ++j)
       shm0[j] = phi(1, j);
