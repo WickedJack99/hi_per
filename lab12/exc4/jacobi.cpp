@@ -82,7 +82,7 @@ void Jacobi::exchangeHaloLayersNodeMPIProcFirst(Matrix &phi)
   // Communication with upper partner
   if (!isLastRank())
   {
-    int upper = rank_ - 1;
+    int upper = rank_ + 1;
     MPI_Isend(&phi(n - 2, 0), sendSize, MPI_DOUBLE, upper, tag, MPI_COMM_WORLD,
               &req.emplace_back());
     MPI_Irecv(&phi(n - 1, 0), sendSize, MPI_DOUBLE, upper, tag, MPI_COMM_WORLD,
@@ -159,7 +159,7 @@ void Jacobi::exchangeHaloLayersNodeMPIProcSecond(Matrix &phi)
   // Communication with lower partner
   if (!isFirstRank())
   {
-    int lower = rank_ + 1;
+    int lower = rank_ - 1;
     MPI_Isend(&phi(1, 0), sendSize, MPI_DOUBLE, lower, tag, MPI_COMM_WORLD,
               &req.emplace_back());
     MPI_Irecv(&phi(0, 0), sendSize, MPI_DOUBLE, lower, tag, MPI_COMM_WORLD,
