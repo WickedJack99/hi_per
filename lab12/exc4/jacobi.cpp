@@ -240,27 +240,17 @@ Jacobi::Result Jacobi::run(const Matrix &init, double eps, int maxNumIter)
   int t0 = 0; // array index of current timestep
   int t1 = 1; // array index of next timestep
 
-#pragma omp parallel
+#pragma omp parallel shared(dist, nIter, phi, t0, t1)
   {
-    while (dist > eps && nIter < maxNumIter)
+    while (true)
     {
-
-#pragma omp single
+#pragma omp for reduction(max : dist) schedule(dynamic, 32)
+      for (int i = 1; i < n - 1; ++i)
       {
-        dist = 0;
-        exchangeHaloLayers(phi[t0]);
-      }
-
-#pragma omp barrier
-
-#pragma omp for reduction(max : dist) schedule(static)
-      for (int i = 1; i < numRows - 1; ++i)
-      {
-        for (int j = 1; j < numCols - 1; ++j)
+        for (int j = 1; j < m - 1; ++j)
         {
-          phi[t1](i, j) = .25 * (phi[t0](i + 1, j) + phi[t0](i - 1, j) +
-                                 phi[t0](i, j + 1) + phi[t0](i, j - 1));
-
+          phi[t1](i, j) = 0.25 * (phi[t0](i + 1, j) + phi[t0](i - 1, j) +
+                                  phi[t0](i, j + 1) + phi[t0](i, j - 1));
           const double diff = phi[t1](i, j) - phi[t0](i, j);
           dist = std::max(dist, std::abs(diff));
         }
@@ -268,10 +258,14 @@ Jacobi::Result Jacobi::run(const Matrix &init, double eps, int maxNumIter)
 
 #pragma omp single
       {
-        MPI_Allreduce(MPI_IN_PLACE, &dist, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
         nIter++;
         std::swap(t0, t1);
       }
+
+#pragma omp barrier
+      if (dist <= eps || nIter >= maxNumIter)
+        break;
+#pragma omp barrier
     }
   }
 
