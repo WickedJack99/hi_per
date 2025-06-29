@@ -99,21 +99,21 @@ void Jacobi::exchangeHaloLayersNodeMPIProcFirst(Matrix &phi)
     // communication with second rank on same node via shared memory
     // We write our send row to shared memory row 0
 
-    while (states.shmStates[0] == SharedmemState::Unread)
+    while (states->shmStates[0] == SharedmemState::Unread)
     {MPI_Win_sync(win_);}
     
     for (int j = 0; j < sendSize; ++j)
       shm0[j] = phi(1, j);
-    states.shmStates[0] = SharedmemState::Unread;
+    states->shmStates[0] = SharedmemState::Unread;
     MPI_Win_sync(win_); // ensure memory visibility
 
     // Wait for second proc to write its row back to shared memory row 1
-    while (states.shmStates[1] == SharedmemState::Read)
+    while (states->shmStates[1] == SharedmemState::Read)
     {MPI_Win_sync(win_);}
 
     for (int j = 0; j < sendSize; ++j)
       phi(0, j) = shm1[j]; // halo from second proc
-    states.shmStates[1] = SharedmemState::Read;
+    states->shmStates[1] = SharedmemState::Read;
   }
 
   // Wait for communication to finish
@@ -139,21 +139,21 @@ void Jacobi::exchangeHaloLayersNodeMPIProcSecond(Matrix &phi)
     // communication with second rank on same node via shared memory
     // We write our send row to shared memory row 0
 
-    while (states.shmStates[1] == SharedmemState::Unread)
+    while (states->shmStates[1] == SharedmemState::Unread)
     {MPI_Win_sync(win_);}
     
     for (int j = 0; j < sendSize; ++j)
       shm1[j] = phi(n - 2, j); // our last inner row
-    states.shmStates[1] = SharedmemState::Unread;
+    states->shmStates[1] = SharedmemState::Unread;
     MPI_Win_sync(win_); // ensure memory visibility
     
     // Wait for first proc to write its row back to shared memory row 0
-    while (states.shmStates[0] == SharedmemState::Read)
+    while (states->shmStates[0] == SharedmemState::Read)
     {MPI_Win_sync(win_);}
 
     for (int j = 0; j < sendSize; ++j)
       phi(n - 1, j) = shm0[j]; // halo from first proc
-    states.shmStates[0] = SharedmemState::Read;
+    states->shmStates[0] = SharedmemState::Read;
   }
 
   // Communication with lower partner
