@@ -75,7 +75,7 @@ void Jacobi::exchangeHaloLayers(Matrix &phi)
   }
 }
 
-void Jacobi::exchangeHaloLayersNodeMPIProcFirst(Matrix &phi)
+void Jacobi::exchangeHaloLayersNodeMPIProcSecond(Matrix &phi)
 {
   int n = phi.rows();
   int sendSize = phi.cols();
@@ -129,7 +129,7 @@ void Jacobi::exchangeHaloLayersNodeMPIProcFirst(Matrix &phi)
   MPI_Waitall(req.size(), req.data(), stat.data());
 }
 
-void Jacobi::exchangeHaloLayersNodeMPIProcSecond(Matrix &phi)
+void Jacobi::exchangeHaloLayersNodeMPIProcFirst(Matrix &phi)
 {
   int n = phi.rows();
   int sendSize = phi.cols();
