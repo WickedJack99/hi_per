@@ -241,32 +241,36 @@ Jacobi::Result Jacobi::run(const Matrix &init, double eps, int maxNumIter)
   int t1 = 1; // array index of next timestep
 
 #pragma omp parallel
-  while (dist > eps && nIter < maxNumIter)
   {
-    dist = 0;
-
-#pragma omp single
-    exchangeHaloLayers(phi[t0]);
-
-#pragma omp for reduction(max : dist) schedule(static, numRows / 6)
-    for (int i = 1; i < numRows - 1; ++i)
+    while (dist > eps && nIter < maxNumIter)
     {
-      for (int j = 1; j < numCols - 1; ++j)
+      double local_dist = 0;
+      
+#pragma omp single
+      exchangeHaloLayers(phi[t0]);
+
+#pragma omp barrier
+
+#pragma omp for reduction(max : local_dist) schedule(static)
+      for (int i = 1; i < numRows - 1; ++i)
       {
-        phi[t1](i, j) = .25 * (phi[t0](i + 1, j) + phi[t0](i - 1, j) +
-                               phi[t0](i, j + 1) + phi[t0](i, j - 1));
+        for (int j = 1; j < numCols - 1; ++j)
+        {
+          phi[t1](i, j) = .25 * (phi[t0](i + 1, j) + phi[t0](i - 1, j) +
+                                 phi[t0](i, j + 1) + phi[t0](i, j - 1));
 
-        const double diff = phi[t1](i, j) - phi[t0](i, j);
-        dist = std::max(dist, std::abs(diff));
+          const double diff = phi[t1](i, j) - phi[t0](i, j);
+          local_dist = std::max(local_dist, std::abs(diff));
+        }
       }
-    }
 
 #pragma omp single
-    {
-      MPI_Allreduce(MPI_IN_PLACE, &dist, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
-
-      nIter++;
-      std::swap(t0, t1);
+      {
+        MPI_Allreduce(MPI_IN_PLACE, &dist, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+        dist = local_dist;
+        nIter++;
+        std::swap(t0, t1);
+      }
     }
   }
 
