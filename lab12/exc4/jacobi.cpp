@@ -160,7 +160,7 @@ void Jacobi::exchangeHaloLayersNodeMPIProcFirst(Matrix &phi)
     {
       if (rank_ == (numProc_ - 2))
       {
-        std::cout << "t" << std::endl;
+        std::cout << "t1" << std::endl;
       }
       MPI_Win_sync(win_);
     }
@@ -173,6 +173,10 @@ void Jacobi::exchangeHaloLayersNodeMPIProcFirst(Matrix &phi)
     // Wait for first proc to write its row back to shared memory row 0
     while (states->shmStates[0] == SharedmemState::Read)
     {
+      if (rank_ == (numProc_ - 2))
+      {
+        std::cout << "t2" << std::endl;
+      }
       MPI_Win_sync(win_);
     }
 
