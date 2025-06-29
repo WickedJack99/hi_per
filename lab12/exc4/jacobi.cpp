@@ -61,7 +61,7 @@ int Jacobi::upperOffset() const
 
 void Jacobi::exchangeHaloLayers(Matrix &phi)
 {
-  if (rank_ == (numProc_ - 1)) {
+  if (rank_ == (numProc_ - 2)) {
     std::cout << is_first_on_node_ << std::endl;
   }
     
