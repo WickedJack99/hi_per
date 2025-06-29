@@ -244,14 +244,16 @@ Jacobi::Result Jacobi::run(const Matrix &init, double eps, int maxNumIter)
   {
     while (dist > eps && nIter < maxNumIter)
     {
-      double local_dist = 0;
-      
+
 #pragma omp single
-      exchangeHaloLayers(phi[t0]);
+      {
+        dist = 0;
+        exchangeHaloLayers(phi[t0]);
+      }
 
 #pragma omp barrier
 
-#pragma omp for reduction(max : local_dist) schedule(static)
+#pragma omp for reduction(max : dist) schedule(static)
       for (int i = 1; i < numRows - 1; ++i)
       {
         for (int j = 1; j < numCols - 1; ++j)
@@ -260,14 +262,13 @@ Jacobi::Result Jacobi::run(const Matrix &init, double eps, int maxNumIter)
                                  phi[t0](i, j + 1) + phi[t0](i, j - 1));
 
           const double diff = phi[t1](i, j) - phi[t0](i, j);
-          local_dist = std::max(local_dist, std::abs(diff));
+          dist = std::max(dist, std::abs(diff));
         }
       }
 
 #pragma omp single
       {
         MPI_Allreduce(MPI_IN_PLACE, &dist, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
-        dist = local_dist;
         nIter++;
         std::swap(t0, t1);
       }
