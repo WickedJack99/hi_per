@@ -61,6 +61,10 @@ int Jacobi::upperOffset() const
 
 void Jacobi::exchangeHaloLayers(Matrix &phi)
 {
+  if (rank_ == (numProc_ - 1)) {
+    std::cout << is_first_on_node_ << std::endl;
+  }
+    
   if (is_first_on_node_)
   {
     exchangeHaloLayersNodeMPIProcFirst(phi);
@@ -101,8 +105,6 @@ void Jacobi::exchangeHaloLayersNodeMPIProcFirst(Matrix &phi)
 
     while (states->shmStates[0] == SharedmemState::Unread)
     {
-      if (rank_ == (numProc_ - 1))
-        std::cout << "102" << std::endl;
       MPI_Win_sync(win_);
     }
 
