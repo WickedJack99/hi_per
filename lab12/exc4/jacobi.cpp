@@ -239,12 +239,16 @@ Jacobi::Result Jacobi::run(const Matrix &init, double eps, int maxNumIter)
 
   int t0 = 0; // array index of current timestep
   int t1 = 1; // array index of next timestep
+
+#pragma omp parallel firstprivate(t0, t1) lastprivate(nIter)
   while (dist > eps && nIter < maxNumIter)
   {
     dist = 0;
 
+#pragma omp single
     exchangeHaloLayers(phi[t0]);
 
+#pragma omp for reduction(max : dist) schedule(static, numRows / 6)
     for (int i = 1; i < numRows - 1; ++i)
     {
       for (int j = 1; j < numCols - 1; ++j)
@@ -257,6 +261,7 @@ Jacobi::Result Jacobi::run(const Matrix &init, double eps, int maxNumIter)
       }
     }
 
+#pragma omp single
     MPI_Allreduce(MPI_IN_PLACE, &dist, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
 
     nIter++;
