@@ -229,11 +229,9 @@ Jacobi::Result Jacobi::run(const Matrix &init, double eps, int maxNumIter)
   const int numRows = phi[0].rows();
   const int numCols = phi[0].cols();
 
-  if (is_first_on_node_)
-  {
-    MPI_Aint size = numCols * 2 * sizeof(double) + sizeof(SharedmemStates);
-    MPI_Win_allocate_shared(size, sizeof(char), MPI_INFO_NULL, shm_comm_, &baseptr_, &win_);
-  }
+  MPI_Aint size = is_first_on_node_ ? (numCols * 2 * sizeof(double) + sizeof(SharedmemStates)) : 0;
+
+  MPI_Win_allocate_shared(size, sizeof(char), MPI_INFO_NULL, shm_comm_, &baseptr_, &win_);
 
   int nIter = 0;
   double dist = std::numeric_limits<double>::max();
