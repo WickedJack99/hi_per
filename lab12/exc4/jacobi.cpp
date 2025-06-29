@@ -244,7 +244,7 @@ Jacobi::Result Jacobi::run(const Matrix &init, double eps, int maxNumIter)
   {
     while (true)
     {
-#pragma omp for reduction(max : dist) schedule(dynamic, 32)
+#pragma omp for reduction(max : dist) schedule(dynamic)
       for (int i = 1; i < numRows - 1; ++i)
       {
         for (int j = 1; j < numCols - 1; ++j)
