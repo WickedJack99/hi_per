@@ -1,7 +1,7 @@
 PROGRAM_NAME = jacobi
 SOURCE_FILES = main.cpp jacobi.cpp matrix_io.cpp
 
-COMPILER_FLAGS = -std=c++17 -Wall -Wextra -Wall -Werror -Wno-sign-compare -Wno-unused-result -Wno-cast-function-type
+COMPILER_FLAGS = -std=c++17 -Wall -Wextra -Wall -Werror -Wno-sign-compare -Wno-unused-result -Wno-cast-function-type -fopenmp
 
 default: debug
 
