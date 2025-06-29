@@ -60,7 +60,27 @@ class Jacobi {
 
   // count of MPI procs
   int numProc_ = 1;
+
+  void* baseptr_;
+
+  MPI_Win win_;
+
+  SharedmemStates shm_states_ = {
+    {Read, Read}
+  };
 };
+
+enum SharedmemState
+{
+  Unread = 0,
+  Read = 1
+};
+
+struct SharedmemStates
+{
+  SharedmemState shmStates[2];        // Flags: one for each row
+};
+
 
 // 4 times horizontal split | with mpi
 
