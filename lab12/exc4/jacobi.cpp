@@ -94,17 +94,18 @@ void Jacobi::exchangeHaloLayersNodeMPIProcFirst(Matrix &phi)
   {
     SharedmemStates *states = reinterpret_cast<SharedmemStates *>(baseptr_);
     double *shm0 = reinterpret_cast<double *>(states + 1); // row 0
-    double *shm1 = shm0 + sendSize;                            // row 1
+    double *shm1 = shm0 + sendSize;                        // row 1
 
     // communication with second rank on same node via shared memory
     // We write our send row to shared memory row 0
 
     while (states->shmStates[0] == SharedmemState::Unread)
     {
-      if (rank_ == (n - 1))
+      if (rank_ == (numProc_ - 1))
         std::cout << "102" << std::endl;
-      MPI_Win_sync(win_);}
-    
+      MPI_Win_sync(win_);
+    }
+
     for (int j = 0; j < sendSize; ++j)
       shm0[j] = phi(1, j);
     states->shmStates[0] = SharedmemState::Unread;
@@ -112,7 +113,9 @@ void Jacobi::exchangeHaloLayersNodeMPIProcFirst(Matrix &phi)
 
     // Wait for second proc to write its row back to shared memory row 1
     while (states->shmStates[1] == SharedmemState::Read)
-    {MPI_Win_sync(win_);}
+    {
+      MPI_Win_sync(win_);
+    }
 
     for (int j = 0; j < sendSize; ++j)
       phi(0, j) = shm1[j]; // halo from second proc
@@ -135,24 +138,36 @@ void Jacobi::exchangeHaloLayersNodeMPIProcSecond(Matrix &phi)
   // Communication with upper partner
   if (!isLastRank())
   {
-    SharedmemStates *states = reinterpret_cast<SharedmemStates *>(baseptr_);
+    // All ranks query pointer to the shared memory (rank 0 gets what it allocated)
+    void *raw_ptr;
+    MPI_Aint query_size;
+    int query_disp_unit;
+
+    // We always query rank 0’s memory (shared across node)
+    MPI_Win_shared_query(win_, 0, &query_size, &query_disp_unit, &raw_ptr);
+
+    SharedmemStates *states = reinterpret_cast<SharedmemStates *>(raw_ptr);
     double *shm0 = reinterpret_cast<double *>(states + 1); // row 0
-    double *shm1 = shm0 + sendSize;                            // row 1
+    double *shm1 = shm0 + sendSize;                        // row 1
 
     // communication with second rank on same node via shared memory
     // We write our send row to shared memory row 0
 
     while (states->shmStates[1] == SharedmemState::Unread)
-    {MPI_Win_sync(win_);}
-    
+    {
+      MPI_Win_sync(win_);
+    }
+
     for (int j = 0; j < sendSize; ++j)
       shm1[j] = phi(n - 2, j); // our last inner row
     states->shmStates[1] = SharedmemState::Unread;
     MPI_Win_sync(win_); // ensure memory visibility
-    
+
     // Wait for first proc to write its row back to shared memory row 0
     while (states->shmStates[0] == SharedmemState::Read)
-    {MPI_Win_sync(win_);}
+    {
+      MPI_Win_sync(win_);
+    }
 
     for (int j = 0; j < sendSize; ++j)
       phi(n - 1, j) = shm0[j]; // halo from first proc
@@ -214,8 +229,11 @@ Jacobi::Result Jacobi::run(const Matrix &init, double eps, int maxNumIter)
   const int numRows = phi[0].rows();
   const int numCols = phi[0].cols();
 
-  MPI_Aint size = numCols * 2 * sizeof(double) + sizeof(SharedmemStates);
-  MPI_Win_allocate_shared(size, sizeof(char), MPI_INFO_NULL, shm_comm_, &baseptr_, &win_);
+  if (is_first_on_node_)
+  {
+    MPI_Aint size = numCols * 2 * sizeof(double) + sizeof(SharedmemStates);
+    MPI_Win_allocate_shared(size, sizeof(char), MPI_INFO_NULL, shm_comm_, &baseptr_, &win_);
+  }
 
   int nIter = 0;
   double dist = std::numeric_limits<double>::max();
