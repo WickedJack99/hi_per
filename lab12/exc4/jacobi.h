@@ -3,6 +3,17 @@
 
 #include "matrix.h"
 
+enum SharedmemState
+{
+  Unread = 0,
+  Read = 1
+};
+
+struct SharedmemStates
+{
+  SharedmemState shmStates[2];        // Flags: one for each row
+};
+
 /**
  * Base class for Jacobi algorithms.
  * Defines a struct result which is returned by the algorithm.
@@ -69,18 +80,6 @@ class Jacobi {
     {Read, Read}
   };
 };
-
-enum SharedmemState
-{
-  Unread = 0,
-  Read = 1
-};
-
-struct SharedmemStates
-{
-  SharedmemState shmStates[2];        // Flags: one for each row
-};
-
 
 // 4 times horizontal split | with mpi
 

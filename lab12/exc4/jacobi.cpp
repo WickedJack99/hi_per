@@ -92,28 +92,28 @@ void Jacobi::exchangeHaloLayersNodeMPIProcFirst(Matrix &phi)
   // Communication with lower partner
   if (!isFirstRank())
   {
-    SharedmemStates *states = reinterpret_cast<SharedmemStates *>(baseptr);
+    SharedmemStates *states = reinterpret_cast<SharedmemStates *>(baseptr_);
     double *shm0 = reinterpret_cast<double *>(states + 1); // row 0
-    double *shm1 = shm0 + cols;                            // row 1
+    double *shm1 = shm0 + sendSize;                            // row 1
 
     // communication with second rank on same node via shared memory
     // We write our send row to shared memory row 0
 
-    while (states[0] == SharedmemState::Unread)
+    while (states.shmStates[0] == SharedmemState::Unread)
     {MPI_Win_sync(win_);}
     
     for (int j = 0; j < sendSize; ++j)
-      shm0[j] = phi(n - 2, j); // our last inner row
-    states[0] = SharedmemState::Unread;
+      shm0[j] = phi(1, j);
+    states.shmStates[0] = SharedmemState::Unread;
     MPI_Win_sync(win_); // ensure memory visibility
 
     // Wait for second proc to write its row back to shared memory row 1
-    while (states[1] == SharedmemState::Read)
+    while (states.shmStates[1] == SharedmemState::Read)
     {MPI_Win_sync(win_);}
 
     for (int j = 0; j < sendSize; ++j)
-      phi(n - 1, j) = shm1[j]; // halo from second proc
-    states[1] = SharedmemState::Read;
+      phi(0, j) = shm1[j]; // halo from second proc
+    states.shmStates[1] = SharedmemState::Read;
   }
 
   // Wait for communication to finish
@@ -132,28 +132,28 @@ void Jacobi::exchangeHaloLayersNodeMPIProcSecond(Matrix &phi)
   // Communication with upper partner
   if (!isLastRank())
   {
-    SharedmemStates *states = reinterpret_cast<SharedmemStates *>(baseptr);
+    SharedmemStates *states = reinterpret_cast<SharedmemStates *>(baseptr_);
     double *shm0 = reinterpret_cast<double *>(states + 1); // row 0
-    double *shm1 = shm0 + cols;                            // row 1
+    double *shm1 = shm0 + sendSize;                            // row 1
 
     // communication with second rank on same node via shared memory
     // We write our send row to shared memory row 0
 
-    while (states[1] == SharedmemState::Unread)
+    while (states.shmStates[1] == SharedmemState::Unread)
     {MPI_Win_sync(win_);}
     
     for (int j = 0; j < sendSize; ++j)
-      shm1[j] = phi(1, j); // our last inner row
-    states[1] = SharedmemState::Unread;
+      shm1[j] = phi(n - 2, j); // our last inner row
+    states.shmStates[1] = SharedmemState::Unread;
     MPI_Win_sync(win_); // ensure memory visibility
     
     // Wait for first proc to write its row back to shared memory row 0
-    while (states[0] == SharedmemState::Read)
+    while (states.shmStates[0] == SharedmemState::Read)
     {MPI_Win_sync(win_);}
 
     for (int j = 0; j < sendSize; ++j)
-      phi(0, j) = shm0[j]; // halo from first proc
-    states[0] = SharedmemState::Read;
+      phi(n - 1, j) = shm0[j]; // halo from first proc
+    states.shmStates[0] = SharedmemState::Read;
   }
 
   // Communication with lower partner
