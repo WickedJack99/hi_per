@@ -31,6 +31,9 @@ class Jacobi {
  private:
   void exchangeHaloLayers(Matrix& phi);
 
+  void exchangeHaloLayersNodeMPIProcFirst(Matrix& phi);
+  void exchangeHaloLayersNodeMPIProcSecond(Matrix& phi);
+
   Matrix addHaloLayers(const Matrix& phi);
   Matrix removeHaloLayers(const Matrix& phi);
 
@@ -43,8 +46,26 @@ class Jacobi {
   int numRowsWithHalos(int numRowsWithoutHalos) const;
   int numRowsWithoutHalos(int numRowsWithHalos) const;
 
+  // Global rank on cluster
   int rank_ = MPI_PROC_NULL;
+
+  // Local rank on node
+  int shm_rank_ = MPI_PROC_NULL;
+
+  // Communicator for local domain of node
+  MPI_Comm shm_comm_;
+
+  // True if this MPI proc is first on node
+  bool is_first_on_node_;
+
+  // count of MPI procs
   int numProc_ = 1;
 };
+
+// 4 times horizontal split | with mpi
+
+// 12 times vertical split - with openmp
+
+
 
 #endif  // JACOBI_H

@@ -12,7 +12,7 @@ debug: $(SOURCE_FILES)
 	mpicxx $(SOURCE_FILES) -g -o $(PROGRAM_NAME) ${COMPILER_FLAGS}
 
 run: release
-	mpirun -np 4 ./$(PROGRAM_NAME) 3072 3e-6 100000
+	mpirun -np 1 ./$(PROGRAM_NAME) 3072 3e-6 100000
 
 plot: plot.py
 	python3 plot.py
