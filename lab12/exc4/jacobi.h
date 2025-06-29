@@ -5,8 +5,8 @@
 
 enum SharedmemState
 {
-  Unread = 0,
-  Read = 1
+  Read = 0,
+  Unread = 1
 };
 
 struct SharedmemStates
