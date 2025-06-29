@@ -97,7 +97,15 @@ void Jacobi::exchangeHaloLayersNodeMPIProcSecond(Matrix &phi)
   // Communication with lower partner
   if (!isFirstRank())
   {
-    SharedmemStates *states = reinterpret_cast<SharedmemStates *>(baseptr_);
+    // All ranks query pointer to the shared memory (rank 0 gets what it allocated)
+    void *raw_ptr;
+    MPI_Aint query_size;
+    int query_disp_unit;
+
+    // We always query rank 0’s memory (shared across node)
+    MPI_Win_shared_query(win_, 0, &query_size, &query_disp_unit, &raw_ptr);
+
+    SharedmemStates *states = reinterpret_cast<SharedmemStates *>(raw_ptr);
     double *shm0 = reinterpret_cast<double *>(states + 1); // row 0
     double *shm1 = shm0 + sendSize;                        // row 1
 
@@ -142,15 +150,7 @@ void Jacobi::exchangeHaloLayersNodeMPIProcFirst(Matrix &phi)
   // Communication with upper partner
   if (!isLastRank())
   {
-    // All ranks query pointer to the shared memory (rank 0 gets what it allocated)
-    void *raw_ptr;
-    MPI_Aint query_size;
-    int query_disp_unit;
-
-    // We always query rank 0’s memory (shared across node)
-    MPI_Win_shared_query(win_, 0, &query_size, &query_disp_unit, &raw_ptr);
-
-    SharedmemStates *states = reinterpret_cast<SharedmemStates *>(raw_ptr);
+    SharedmemStates *states = reinterpret_cast<SharedmemStates *>(baseptr_);
     double *shm0 = reinterpret_cast<double *>(states + 1); // row 0
     double *shm1 = shm0 + sendSize;                        // row 1
 
